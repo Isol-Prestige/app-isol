@@ -3,65 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Isolation Pro - App</title>
+    <title>Isolation Pro - Expert</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-100 min-h-screen pb-20">
 
-    <nav class="bg-blue-700 text-white p-4 shadow-lg mb-6">
+    <nav class="bg-blue-800 text-white p-4 shadow-lg sticky top-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="font-bold text-xl">Isolation Estimator</h1>
-            <div class="space-x-4 text-sm md:text-base">
-                <button onclick="showSection('devis')" class="bg-blue-800 px-3 py-1 rounded">Devis</button>
-                <button onclick="showSection('config')" class="bg-blue-800 px-3 py-1 rounded">Réglages Prix</button>
+            <h1 class="font-bold text-lg">Isol-Prestige App</h1>
+            <div class="flex gap-2">
+                <button onclick="showSection('devis')" class="bg-blue-700 px-3 py-1 rounded text-sm">Devis</button>
+                <button onclick="showSection('history')" class="bg-blue-700 px-3 py-1 rounded text-sm">Historique</button>
+                <button onclick="showSection('config')" class="bg-gray-700 px-3 py-1 rounded text-sm">Tarifs</button>
             </div>
         </div>
     </nav>
 
-    <div class="container mx-auto px-4 pb-20">
+    <div class="container mx-auto px-4 mt-6">
         
         <section id="section-devis" class="block space-y-4">
-            <div class="bg-white p-6 rounded-xl shadow-md">
-                <h2 class="text-xl font-bold mb-4 text-blue-700">Nouvelle Estimation</h2>
+            <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">
+                <h2 class="text-xl font-bold mb-4">Nouvelle Estimation</h2>
                 <div class="space-y-4">
-                    <input type="text" id="clientName" placeholder="Nom du Client" class="w-full border p-3 rounded-lg text-lg">
-                    <input type="number" id="surface" placeholder="Surface totale (m²)" class="w-full border p-3 rounded-lg text-lg">
-                    <select id="prestation" class="w-full border p-3 rounded-lg text-lg bg-white">
-                        <option value="">-- Choisir une prestation --</option>
-                    </select>
-                    <button onclick="calculerEstimation()" class="w-full bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-green-700">
-                        CALCULER & RÉSUMER
+                    <input type="text" id="clientName" placeholder="Nom du Client" class="w-full border p-3 rounded-lg">
+                    <input type="number" id="surface" placeholder="Surface (m²)" class="w-full border p-3 rounded-lg">
+                    <select id="prestation" class="w-full border p-3 rounded-lg bg-white"></select>
+                    <button onclick="calculerEtEnregistrer()" class="w-full bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-green-700">
+                        CALCULER & ENREGISTRER
                     </button>
                 </div>
             </div>
 
-            <div id="resultat" class="hidden bg-white p-6 rounded-xl shadow-inner border-t-4 border-green-500">
-                <div id="summaryText" class="text-gray-800 font-medium"></div>
+            <div id="resultat" class="hidden bg-white p-6 rounded-xl shadow-md border-t-4 border-green-500">
+                <div id="summaryText" class="text-gray-800 whitespace-pre-line"></div>
                 <button onclick="sendWhatsApp()" class="mt-6 w-full bg-green-500 text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2">
-                    ENVOYER WHATSAPP
+                    ENVOYER PAR WHATSAPP
                 </button>
             </div>
         </section>
 
+        <section id="section-history" class="hidden space-y-4">
+            <h2 class="text-xl font-bold text-gray-700">Derniers Devis Enregistrés</h2>
+            <div id="historyList" class="space-y-3"></div>
+        </section>
+
         <section id="section-config" class="hidden space-y-4">
             <div class="bg-white p-6 rounded-xl shadow-md">
-                <h2 class="text-xl font-bold mb-4 text-blue-700">Gestion des Tarifs m²</h2>
+                <h2 class="text-xl font-bold mb-4 text-blue-700">Ajouter un Tarif</h2>
                 <div class="grid grid-cols-1 gap-3">
-                    <input type="text" id="newLabel" placeholder="Nom (ex: Isolation Graphite)" class="border p-3 rounded-lg">
-                    <input type="number" id="newPrice" placeholder="Prix au m² (€)" class="border p-3 rounded-lg">
-                    <button onclick="savePrice()" class="bg-blue-600 text-white py-3 rounded-lg font-bold">AJOUTER LE PRIX</button>
+                    <input type="text" id="newLabel" placeholder="Nom du produit" class="border p-3 rounded-lg">
+                    <input type="number" id="newPrice" placeholder="Prix HT au m²" class="border p-3 rounded-lg">
+                    <button onclick="savePrice()" class="bg-blue-600 text-white py-3 rounded-lg font-bold">AJOUTER</button>
                 </div>
             </div>
-            <div class="bg-white p-4 rounded-xl">
-                <h3 class="font-bold mb-2">Tarifs enregistrés :</h3>
-                <ul id="priceList" class="divide-y divide-gray-100"></ul>
+            <div class="bg-white p-4 rounded-xl shadow-md">
+                <h3 class="font-bold mb-3 border-b pb-2">Liste des Prix</h3>
+                <ul id="priceList" class="divide-y"></ul>
             </div>
         </section>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBeSwiReLvYaV47FSQKLTGEo0ynA8gM1f8",
@@ -75,13 +79,13 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Navigation
+        // --- NAVIGATION ---
         window.showSection = (id) => {
-            document.getElementById('section-devis').style.display = (id === 'devis' ? 'block' : 'none');
-            document.getElementById('section-config').style.display = (id === 'config' ? 'block' : 'none');
+            ['section-devis', 'section-history', 'section-config'].forEach(s => document.getElementById(s).classList.add('hidden'));
+            document.getElementById('section-' + id).classList.remove('hidden');
         };
 
-        // Sauvegarder un prix
+        // --- GESTION DES TARIFS ---
         window.savePrice = async function() {
             const label = document.getElementById('newLabel').value;
             const price = document.getElementById('newPrice').value;
@@ -89,44 +93,81 @@
                 await addDoc(collection(db, "tarifs"), { nom: label, prix: parseFloat(price) });
                 document.getElementById('newLabel').value = "";
                 document.getElementById('newPrice').value = "";
-                alert("Nouveau tarif ajouté !");
             }
         };
 
-        // Charger les tarifs en temps réel
+        window.deletePrice = async (id) => {
+            if(confirm("Supprimer ce tarif ?")) await deleteDoc(doc(db, "tarifs", id));
+        };
+
         onSnapshot(collection(db, "tarifs"), (snapshot) => {
             const list = document.getElementById('priceList');
             const select = document.getElementById('prestation');
             list.innerHTML = "";
             select.innerHTML = '<option value="">-- Choisir une prestation --</option>';
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                list.innerHTML += `<li class="py-2 flex justify-between"><span>${data.nom}</span> <b>${data.prix}€</b></li>`;
+            snapshot.forEach((d) => {
+                const data = d.data();
+                list.innerHTML += `<li class="py-3 flex justify-between items-center">
+                    <span>${data.nom} - <b>${data.prix}€</b></span>
+                    <button onclick="deletePrice('${d.id}')" class="text-red-500 text-sm border border-red-200 px-2 py-1 rounded">Supprimer</button>
+                </li>`;
                 select.innerHTML += `<option value="${data.prix}" data-name="${data.nom}">${data.nom} (${data.prix}€/m²)</option>`;
             });
         });
 
-        // Calculer l'estimation
-        window.calculerEstimation = () => {
+        // --- GESTION DES DEVIS (CLIENTS) ---
+        window.calculerEtEnregistrer = async () => {
             const name = document.getElementById('clientName').value;
             const surf = document.getElementById('surface').value;
             const price = document.getElementById('prestation').value;
-            const prestName = document.getElementById('prestation').options[document.getElementById('prestation').selectedIndex].getAttribute('data-name');
+            const prestName = document.getElementById('prestation').options[document.getElementById('prestation').selectedIndex]?.getAttribute('data-name');
 
-            if(!name || !surf || !price) return alert("Remplissez tout !");
+            if(!name || !surf || !price) return alert("Veuillez remplir tous les champs");
 
-            const total = surf * price;
-            const texte = `📋 ESTIMATION ISOLATION\nClient : ${name}\nPrestation : ${prestName}\nSurface : ${surf} m²\nPrix m² : ${price}€\n--------------------\nTOTAL ESTIMÉ : ${total}€ HT`;
+            const total = (surf * price).toFixed(2);
+            const dateStr = new Date().toLocaleString('fr-FR');
+            
+            const estimationData = {
+                client: name,
+                surface: surf,
+                produit: prestName,
+                prixUnitaire: price,
+                totalHT: total,
+                date: dateStr,
+                timestamp: Date.now()
+            };
+
+            // Enregistrement dans Firebase
+            await addDoc(collection(db, "estimations"), estimationData);
+
+            const texte = `📋 *ESTIMATION ISOLATION*\n\n*Client :* ${name}\n*Prestation :* ${prestName}\n*Surface :* ${surf} m²\n*Prix m² :* ${price}€\n\n--------------------\n*TOTAL ESTIMÉ : ${total}€ HT*\n--------------------\n_Fait le ${dateStr}_`;
             
             document.getElementById('summaryText').innerText = texte;
             document.getElementById('resultat').classList.remove('hidden');
             window.lastEstimation = texte;
         };
 
-        // Envoyer sur WhatsApp
+        // Charger l'historique
+        const q = query(collection(db, "estimations"), orderBy("timestamp", "desc"));
+        onSnapshot(q, (snapshot) => {
+            const histList = document.getElementById('historyList');
+            histList.innerHTML = "";
+            snapshot.forEach((d) => {
+                const data = d.data();
+                histList.innerHTML += `
+                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
+                    <div class="flex justify-between font-bold">
+                        <span>${data.client}</span>
+                        <span class="text-blue-600">${data.totalHT}€</span>
+                    </div>
+                    <div class="text-sm text-gray-500">${data.surface}m² - ${data.produit}</div>
+                    <div class="text-xs text-gray-400 mt-2 italic">${data.date}</div>
+                </div>`;
+            });
+        });
+
         window.sendWhatsApp = () => {
-            const url = "https://wa.me/?text=" + encodeURIComponent(window.lastEstimation);
-            window.open(url, '_blank');
+            window.open("https://wa.me/?text=" + encodeURIComponent(window.lastEstimation), '_blank');
         };
     </script>
 </body>
