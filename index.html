@@ -1,93 +1,110 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Isol-Prestige - Devis Pro</title>
+    <title>ISOL-PRESTIGE | Expert System</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .active-tab { border-bottom: 4px solid #f97316; color: #f97316; font-weight: bold; }
+    </style>
 </head>
-<body class="bg-gray-50 min-h-screen pb-20">
+<body class="bg-gray-100 min-h-screen">
 
-    <nav class="bg-slate-900 text-white p-4 shadow-xl sticky top-0 z-50">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="font-bold border-l-4 border-orange-500 pl-3">ISOL-PRESTIGE <span class="text-orange-500 text-xs">OFFICIEL</span></h1>
-            <div class="flex gap-2">
-                <button onclick="showSection('devis')" class="text-xs bg-slate-800 px-3 py-2 rounded">NOUVEAU DEVIS</button>
-                <button onclick="showSection('history')" class="text-xs bg-slate-800 px-3 py-2 rounded">HISTORIQUE</button>
+    <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-2xl">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-black tracking-tighter">ISOL<span class="text-orange-500">-</span>PRESTIGE</h1>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest">Logiciel de chiffrage pro</p>
             </div>
         </div>
-    </nav>
+        <div class="flex border-t border-slate-800">
+            <button onclick="showSection('devis')" id="tab-devis" class="flex-1 py-3 text-xs uppercase active-tab">Devis</button>
+            <button onclick="showSection('clients')" id="tab-clients" class="flex-1 py-3 text-xs uppercase">Clients</button>
+            <button onclick="showSection('reglages')" id="tab-reglages" class="flex-1 py-3 text-xs uppercase text-orange-400">Réglages Prix</button>
+        </div>
+    </header>
 
-    <div class="container mx-auto px-4 mt-6 max-w-2xl">
+    <main class="container mx-auto px-4 py-6 max-w-2xl">
         
         <section id="section-devis" class="space-y-6">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h2 class="text-sm font-bold text-slate-400 uppercase mb-4 tracking-widest">Informations Client</h2>
-                <div class="grid gap-4">
-                    <input type="text" id="clientName" placeholder="Nom du Client" class="w-full border-b p-2 focus:outline-none focus:border-orange-500 bg-slate-50">
-                    <input type="text" id="clientAddress" placeholder="Adresse du chantier (ex: 2 rue du Saumon)" class="w-full border-b p-2 focus:outline-none focus:border-orange-500 bg-slate-50">
+            <div class="bg-white p-6 rounded-2xl shadow-lg">
+                <h2 class="text-lg font-bold mb-4 text-slate-800">Identification Chantier</h2>
+                <div class="space-y-3">
+                    <input type="text" id="clientName" placeholder="Nom du Client / Référence" class="w-full bg-slate-50 border-none p-4 rounded-xl focus:ring-2 focus:ring-orange-500">
+                    <input type="text" id="clientAddress" placeholder="Adresse du chantier" class="w-full bg-slate-50 border-none p-4 rounded-xl focus:ring-2 focus:ring-orange-500">
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-6">
-                <h2 class="text-sm font-bold text-slate-400 uppercase mb-2 tracking-widest">Détails du Chantier</h2>
+            <div class="bg-white p-6 rounded-2xl shadow-lg">
+                <h2 class="text-lg font-bold mb-4 text-slate-800 border-b pb-2">Métrés & Prestations</h2>
+                <div id="itemsContainer" class="space-y-4">
+                    <p class="text-center text-gray-400 animate-pulse">Chargement de vos tarifs...</p>
+                </div>
                 
-                <div class="flex items-center justify-between gap-4 p-3 bg-slate-50 rounded-lg">
-                    <div class="flex-1">
-                        <label class="font-bold text-slate-700">Échafaudage & Préparation</label>
-                        <p class="text-xs text-slate-500">Forfait montage + protection ouvrages</p>
-                    </div>
-                    <input type="number" id="qty_prepa" placeholder="m²" class="w-20 p-2 border rounded">
-                </div>
-
-                <div class="flex items-center justify-between gap-4 p-3 bg-slate-50 rounded-lg">
-                    <div class="flex-1">
-                        <label class="font-bold text-slate-700">Soubassement (180mm)</label>
-                        <p class="text-xs text-slate-500">Panneaux 0.034 W/(m*K)</p>
-                    </div>
-                    <input type="number" id="qty_soub" placeholder="m²" class="w-20 p-2 border rounded">
-                </div>
-
-                <div class="flex items-center justify-between gap-4 p-3 bg-slate-50 rounded-lg">
-                    <div class="flex-1">
-                        <label class="font-bold text-slate-700">Façade Graphite STO</label>
-                        <p class="text-xs text-slate-500">180mm R=5,80 + Enduit Silco</p>
-                    </div>
-                    <input type="number" id="qty_facade" placeholder="m²" class="w-20 p-2 border rounded">
-                </div>
-
-                <div class="flex items-center justify-between gap-4 p-3 bg-slate-50 rounded-lg">
-                    <div class="flex-1">
-                        <label class="font-bold text-slate-700">Ébrasements (ml)</label>
-                        <p class="text-xs text-slate-500">Profil arrêt menuiserie + finitions</p>
-                    </div>
-                    <input type="number" id="qty_ebra" placeholder="ml" class="w-20 p-2 border rounded">
-                </div>
-
-                <button onclick="genererDevisPro()" class="w-full bg-orange-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-orange-700 transition-all uppercase tracking-widest">
-                    Générer le Devis Pro
+                <button onclick="genererDevisPro()" class="w-full bg-orange-600 text-white font-black py-5 rounded-2xl shadow-xl mt-8 hover:bg-orange-700 transition-all transform active:scale-95 uppercase tracking-wider">
+                    Calculer & Enregistrer
                 </button>
             </div>
 
-            <div id="resultat" class="hidden bg-slate-900 text-white p-6 rounded-xl shadow-2xl font-mono text-sm overflow-hidden">
-                <div id="summaryText" class="whitespace-pre-line border-l-2 border-orange-500 pl-4"></div>
-                <div class="mt-6 flex gap-2">
-                    <button onclick="sendWhatsApp()" class="flex-1 bg-green-600 p-3 rounded-lg font-bold flex items-center justify-center gap-2">WhatsApp</button>
+            <div id="resultat" class="hidden bg-slate-900 text-white p-6 rounded-2xl shadow-2xl border-2 border-orange-500">
+                <h3 class="text-orange-500 font-bold mb-4 uppercase text-xs tracking-widest">Aperçu du Devis</h3>
+                <div id="summaryText" class="text-sm font-mono whitespace-pre-line leading-relaxed"></div>
+                <div class="grid grid-cols-1 gap-3 mt-6">
+                    <button onclick="sendWhatsApp()" class="bg-green-600 py-4 rounded-xl font-bold flex items-center justify-center gap-2">
+                        ENVOYER VIA WHATSAPP
+                    </button>
                 </div>
             </div>
         </section>
 
-        <section id="section-history" class="hidden space-y-4">
-            <h2 class="font-bold text-slate-700">Archives Devis</h2>
-            <div id="historyList" class="space-y-3"></div>
+        <section id="section-clients" class="hidden space-y-4">
+            <div class="flex justify-between items-center px-2">
+                <h2 class="font-bold text-slate-700">Devis récents</h2>
+                <span id="countDevis" class="bg-orange-100 text-orange-600 px-2 py-1 rounded-full text-xs font-bold">0</span>
+            </div>
+            <div id="historyList" class="space-y-3 text-sm">
+                </div>
         </section>
-    </div>
+
+        <section id="section-reglages" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-lg border-2 border-orange-100">
+                <h2 class="font-bold mb-4">Ajouter une nouvelle prestation</h2>
+                <input type="hidden" id="editId">
+                <div class="space-y-3">
+                    <input type="text" id="itemLabel" placeholder="Désignation (ex: Isolation Graphite 180mm)" class="w-full border p-3 rounded-lg">
+                    <div class="flex gap-2">
+                        <input type="number" id="itemPrice" placeholder="Prix HT" class="flex-1 border p-3 rounded-lg">
+                        <select id="itemUnit" class="border p-3 rounded-lg bg-white">
+                            <option value="m²">m²</option>
+                            <option value="ml">ml</option>
+                            <option value="Forfait">Forfait</option>
+                        </select>
+                    </div>
+                    <button onclick="saveItem()" id="btnSaveItem" class="w-full bg-slate-800 text-white py-4 rounded-xl font-bold">Enregistrer le tarif</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-100 text-slate-600">
+                        <tr>
+                            <th class="p-4">Désignation</th>
+                            <th class="p-4 text-right">Prix HT</th>
+                            <th class="p-4 text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsTable"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Tes clés API restent les mêmes
         const firebaseConfig = {
             apiKey: "AIzaSyBeSwiReLvYaV47FSQKLTGEo0ynA8gM1f8",
             authDomain: "app-isol.firebaseapp.com",
@@ -99,83 +116,144 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        let currentPrices = [];
 
-        // --- TARIFS FIXES (Basés sur ton devis pro) ---
-        // Tu pourras les modifier ici si tes prix changent
-        const PRIX = {
-            prepa: 9.50,    // Echafaudage m²
-            soub: 89.70,   // Soubassement m²
-            facade: 145.00, // Système complet façade m²
-            ebra: 55.00     // Ebrasement ml
-        };
-
+        // NAVIGATION SANS RECHARGER
         window.showSection = (id) => {
-            document.getElementById('section-devis').classList.toggle('hidden', id !== 'devis');
-            document.getElementById('section-history').classList.toggle('hidden', id !== 'history');
+            ['devis', 'clients', 'reglages'].forEach(s => {
+                document.getElementById('section-'+s).classList.add('hidden');
+                document.getElementById('tab-'+s).classList.remove('active-tab');
+            });
+            document.getElementById('section-'+id).classList.remove('hidden');
+            document.getElementById('tab-'+id).classList.add('active-tab');
         };
 
+        // GESTION DES PRESTATIONS (ONGLET REGLAGES)
+        window.saveItem = async () => {
+            const label = document.getElementById('itemLabel').value;
+            const price = parseFloat(document.getElementById('itemPrice').value);
+            const unit = document.getElementById('itemUnit').value;
+            const id = document.getElementById('editId').value;
+
+            if(!label || isNaN(price)) return alert("Remplissez le nom et le prix");
+
+            if(id) {
+                await updateDoc(doc(db, "prestations", id), { nom: label, prix: price, unite: unit });
+            } else {
+                await addDoc(collection(db, "prestations"), { nom: label, prix: price, unite: unit });
+            }
+            clearFields();
+        };
+
+        window.editItem = (id, nom, prix, unite) => {
+            document.getElementById('itemLabel').value = nom;
+            document.getElementById('itemPrice').value = prix;
+            document.getElementById('itemUnit').value = unite;
+            document.getElementById('editId').value = id;
+            document.getElementById('btnSaveItem').innerText = "Mettre à jour le tarif";
+            window.scrollTo(0,0);
+        };
+
+        window.deleteItem = async (id) => { if(confirm("Supprimer définitivement ce tarif ?")) await deleteDoc(doc(db, "prestations", id)); };
+
+        function clearFields() {
+            document.getElementById('itemLabel').value = "";
+            document.getElementById('itemPrice').value = "";
+            document.getElementById('editId').value = "";
+            document.getElementById('btnSaveItem').innerText = "Enregistrer le tarif";
+        }
+
+        // MISE A JOUR DES PRESTATIONS DANS LE DEVIS
+        onSnapshot(collection(db, "prestations"), (snap) => {
+            const table = document.getElementById('itemsTable');
+            const container = document.getElementById('itemsContainer');
+            table.innerHTML = "";
+            container.innerHTML = "";
+            currentPrices = [];
+
+            snap.forEach(d => {
+                const item = d.data();
+                currentPrices.push({id: d.id, ...item});
+                
+                table.innerHTML += `<tr class="border-t">
+                    <td class="p-4"><b>${item.nom}</b><br><span class="text-slate-400">${item.unite}</span></td>
+                    <td class="p-4 text-right font-bold">${item.prix}€</td>
+                    <td class="p-4 text-center space-x-2">
+                        <button onclick="editItem('${d.id}','${item.nom}',${item.prix}, '${item.unite}')" class="text-blue-600 font-bold">Edit</button>
+                        <button onclick="deleteItem('${d.id}')" class="text-red-500 font-bold">X</button>
+                    </td>
+                </tr>`;
+
+                container.innerHTML += `<div class="bg-slate-50 p-4 rounded-xl flex items-center justify-between border border-slate-100">
+                    <div class="flex-1 pr-4">
+                        <p class="text-sm font-bold text-slate-800">${item.nom}</p>
+                        <p class="text-[10px] text-slate-400 uppercase">${item.prix}€ / ${item.unite}</p>
+                    </div>
+                    <input type="number" data-id="${d.id}" placeholder="${item.unite}" class="qty-input w-24 p-3 border-none rounded-lg bg-white shadow-inner font-bold text-center">
+                </div>`;
+            });
+        });
+
+        // CALCUL DU DEVIS PRO
         window.genererDevisPro = async () => {
             const name = document.getElementById('clientName').value;
             const addr = document.getElementById('clientAddress').value;
-            const qPrepa = parseFloat(document.getElementById('qty_prepa').value) || 0;
-            const qSoub = parseFloat(document.getElementById('qty_soub').value) || 0;
-            const qFacade = parseFloat(document.getElementById('qty_facade').value) || 0;
-            const qEbra = parseFloat(document.getElementById('qty_ebra').value) || 0;
+            if(!name) return alert("Veuillez entrer le nom du client");
 
-            if(!name) return alert("Nom du client obligatoire");
+            let totalHT = 0;
+            let detailTexte = "";
+            const inputs = document.querySelectorAll('.qty-input');
 
-            const totalHT = (qPrepa*PRIX.prepa) + (qSoub*PRIX.soub) + (qFacade*PRIX.facade) + (qEbra*PRIX.ebra);
-            const dateStr = new Date().toLocaleDateString('fr-FR');
+            inputs.forEach(input => {
+                const qte = parseFloat(input.value) || 0;
+                if(qte > 0) {
+                    const priceObj = currentPrices.find(p => p.id === input.dataset.id);
+                    const sousTotal = qte * priceObj.prix;
+                    totalHT += sousTotal;
+                    detailTexte += `✅ ${priceObj.nom}\n   Quantité : ${qte} ${priceObj.unite} | ${sousTotal.toFixed(2)}€ HT\n\n`;
+                }
+            });
 
-            const texte = `🏗️ *DEVIS ISOL-PRESTIGE*
-------------------------------
-*CLIENT :* ${name}
-*LIEU :* ${addr}
-*DATE :* ${dateStr}
-
-*DETAIL DES POSTES :*
-${qPrepa > 0 ? `• Echafaudage/Protec : ${qPrepa}m² x ${PRIX.prepa}€` : ''}
-${qSoub > 0 ? `• Soubassement 180mm : ${qSoub}m² x ${PRIX.soub}€` : ''}
-${qFacade > 0 ? `• Façade Graphite STO : ${qFacade}m² x ${PRIX.facade}€` : ''}
-${qEbra > 0 ? `• Ebrasements fenêtres : ${qEbra}ml x ${PRIX.ebra}€` : ''}
-
-------------------------------
-*TOTAL ESTIMÉ : ${totalHT.toFixed(2)}€ HT*
-------------------------------
-_Conditions : 30% acompte, 60% cours, 10% fin._`;
+            const dateStr = new Date().toLocaleString('fr-FR');
+            const texte = `🏗️ *DEVIS ISOL-PRESTIGE*\n------------------------------\n*CLIENT :* ${name}\n*LIEU :* ${addr || 'Non précisé'}\n*DATE :* ${dateStr}\n------------------------------\n\n*DÉTAIL DES POSTES :*\n${detailTexte}------------------------------\n*TOTAL : ${totalHT.toLocaleString()}€ HT*\n------------------------------\n\n*CONDITIONS DE RÈGLEMENT :*\n• 30% à la commande\n• 60% au milieu des travaux\n• 10% à la fin des travaux\n\n_Devis valable 1 mois._`;
 
             document.getElementById('summaryText').innerText = texte;
             document.getElementById('resultat').classList.remove('hidden');
             window.lastEstimation = texte;
 
-            // Sauvegarde Cloud
-            await addDoc(collection(db, "devis_pro"), {
-                client: name,
-                total: totalHT,
-                date: dateStr,
-                timestamp: Date.now()
+            // SAUVEGARDE DANS L'HISTORIQUE CLIENTS
+            await addDoc(collection(db, "archives_devis"), { 
+                client: name, 
+                total: totalHT, 
+                adresse: addr, 
+                date: dateStr, 
+                timestamp: Date.now() 
             });
+            window.scrollTo(0, document.body.scrollHeight);
         };
 
-        // Historique
-        const q = query(collection(db, "devis_pro"), orderBy("timestamp", "desc"));
-        onSnapshot(q, (snapshot) => {
-            const histList = document.getElementById('historyList');
-            histList.innerHTML = "";
-            snapshot.forEach((d) => {
+        // HISTORIQUE CLIENTS (AVEC SUPPRESSION)
+        window.deleteDevis = async (id) => { if(confirm("Supprimer ce devis ?")) await deleteDoc(doc(db, "archives_devis", id)); };
+
+        const q = query(collection(db, "archives_devis"), orderBy("timestamp", "desc"));
+        onSnapshot(q, (snap) => {
+            const list = document.getElementById('historyList');
+            document.getElementById('countDevis').innerText = snap.size;
+            list.innerHTML = "";
+            snap.forEach(d => {
                 const data = d.data();
-                histList.innerHTML += `
-                <div class="bg-white p-4 rounded shadow-sm border-r-4 border-orange-500">
-                    <div class="font-bold">${data.client}</div>
-                    <div class="text-orange-600 font-mono text-lg">${data.total.toFixed(2)}€ HT</div>
-                    <div class="text-xs text-gray-400">${data.date}</div>
+                list.innerHTML += `<div class="bg-white p-4 rounded-xl shadow-sm flex justify-between items-center border-l-4 border-orange-500">
+                    <div class="flex-1">
+                        <p class="font-black text-slate-800 uppercase text-xs">${data.client}</p>
+                        <p class="text-orange-600 font-bold">${data.total.toLocaleString()}€ HT</p>
+                        <p class="text-[9px] text-gray-400 italic">${data.date}</p>
+                    </div>
+                    <button onclick="deleteDevis('${d.id}')" class="bg-red-50 text-red-500 p-3 rounded-lg text-xs font-bold">SUPPR</button>
                 </div>`;
             });
         });
 
-        window.sendWhatsApp = () => {
-            window.open("https://wa.me/?text=" + encodeURIComponent(window.lastEstimation), '_blank');
-        };
+        window.sendWhatsApp = () => { window.open("https://wa.me/?text=" + encodeURIComponent(window.lastEstimation), '_blank'); };
     </script>
 </body>
 </html>
