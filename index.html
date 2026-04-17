@@ -223,6 +223,25 @@
         };
 
         window.sendWhatsApp = () => window.open("https://wa.me/?text=" + encodeURIComponent(window.lastEstimation), '_blank');
+        // Fonction pour écouter la voix et remplir un champ
+window.startVoice = (inputId) => {
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'fr-FR'; // On règle sur le Français
+
+    recognition.onstart = () => {
+        console.log("L'IA t'écoute...");
+        // On peut changer la couleur du bouton ici pour montrer que ça écoute
+    };
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        // On nettoie le texte (ex: enlever "m2" si tu le dis)
+        const value = transcript.replace(/[^0-9.]/g, ''); 
+        document.getElementById(inputId).value = value;
+    };
+
+    recognition.start();
+};
     </script>
 </body>
 </html>
