@@ -7,95 +7,102 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .active-tab { border-bottom: 4px solid #f97316; color: #f97316; font-weight: bold; }
+        /* Style pour l'écran de chargement/connexion */
+        #login-screen { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
 
-    <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-2xl">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div>
-                <h1 class="text-xl font-black tracking-tighter">ISOL<span class="text-orange-500">-</span>PRESTIGE</h1>
-                <p class="text-[10px] text-slate-400 uppercase tracking-widest">Logiciel de chiffrage pro</p>
+    <div id="login-screen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md text-center">
+            <h1 class="text-2xl font-black mb-2 text-slate-800 tracking-tighter">ISOL<span class="text-orange-500">-</span>PRESTIGE</h1>
+            <p class="text-gray-400 text-sm mb-8 uppercase tracking-widest font-bold">Accès Restreint</p>
+            <div class="space-y-4">
+                <input type="email" id="loginEmail" placeholder="E-mail" class="w-full p-4 bg-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-orange-500">
+                <input type="password" id="loginPass" placeholder="Mot de passe" class="w-full p-4 bg-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-orange-500">
+                <button onclick="handleLogin()" class="w-full bg-orange-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-orange-700 transition-all">SE CONNECTER</button>
+                <p id="loginError" class="text-red-500 text-xs hidden pt-2">Identifiants incorrects ou accès refusé.</p>
             </div>
         </div>
-        <div class="flex border-t border-slate-800">
-            <button onclick="showSection('devis')" id="tab-devis" class="flex-1 py-3 text-xs uppercase active-tab">Devis</button>
-            <button onclick="showSection('clients')" id="tab-clients" class="flex-1 py-3 text-xs uppercase">Clients</button>
-            <button onclick="showSection('reglages')" id="tab-reglages" class="flex-1 py-3 text-xs uppercase text-orange-400">Réglages Prix</button>
-        </div>
-    </header>
+    </div>
 
-    <main class="container mx-auto px-4 py-6 max-w-2xl">
-        
-        <section id="section-devis" class="space-y-6">
-            <div class="bg-white p-6 rounded-2xl shadow-lg">
-                <h2 class="text-lg font-bold mb-4 text-slate-800">Identification Chantier</h2>
-                <div class="space-y-3">
-                    <input type="text" id="clientName" placeholder="Nom du Client" class="w-full bg-slate-50 border-none p-4 rounded-xl focus:ring-2 focus:ring-orange-500">
-                    <input type="text" id="clientAddress" placeholder="Adresse du chantier" class="w-full bg-slate-50 border-none p-4 rounded-xl focus:ring-2 focus:ring-orange-500">
+    <div id="app-content" class="hidden">
+        <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-2xl">
+            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+                <div>
+                    <h1 class="text-xl font-black tracking-tighter">ISOL<span class="text-orange-500">-</span>PRESTIGE</h1>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest">Logiciel de chiffrage pro</p>
                 </div>
+                <button onclick="handleLogout()" class="text-[10px] border border-slate-700 px-3 py-1 rounded-lg text-slate-400 hover:bg-slate-800">DÉCONNEXION</button>
             </div>
-
-            <div class="bg-white p-6 rounded-2xl shadow-lg">
-                <h2 class="text-lg font-bold mb-4 text-slate-800 border-b pb-2">Métrés & Prestations</h2>
-                <div id="itemsContainer" class="space-y-4">
-                    <p class="text-center text-gray-400 animate-pulse">Chargement de vos tarifs...</p>
-                </div>
-                
-                <button onclick="genererDevisPro()" class="w-full bg-orange-600 text-white font-black py-5 rounded-2xl shadow-xl mt-8 hover:bg-orange-700 transition-all transform active:scale-95 uppercase tracking-wider">
-                    Calculer & Enregistrer
-                </button>
+            <div class="flex border-t border-slate-800">
+                <button onclick="showSection('devis')" id="tab-devis" class="flex-1 py-3 text-xs uppercase active-tab">Devis</button>
+                <button onclick="showSection('clients')" id="tab-clients" class="flex-1 py-3 text-xs uppercase">Clients</button>
+                <button onclick="showSection('reglages')" id="tab-reglages" class="flex-1 py-3 text-xs uppercase text-orange-400">Tarifs</button>
             </div>
+        </header>
 
-            <div id="resultat" class="hidden bg-slate-900 text-white p-6 rounded-2xl shadow-2xl border-2 border-orange-500">
-                <h3 class="text-orange-500 font-bold mb-4 uppercase text-xs tracking-widest">Aperçu du Devis</h3>
-                <div id="summaryText" class="text-sm font-mono whitespace-pre-line leading-relaxed"></div>
-                <button onclick="sendWhatsApp()" class="mt-6 bg-green-600 w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2">
-                    ENVOYER VIA WHATSAPP
-                </button>
-            </div>
-        </section>
-
-        <section id="section-clients" class="hidden space-y-4">
-            <h2 class="font-bold text-slate-700 px-2">Devis récents</h2>
-            <div id="historyList" class="space-y-3 text-sm"></div>
-        </section>
-
-        <section id="section-reglages" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl shadow-lg border-2 border-orange-100">
-                <h2 class="font-bold mb-4">Ajouter / Modifier un tarif</h2>
-                <input type="hidden" id="editId">
-                <div class="space-y-3">
-                    <input type="text" id="itemLabel" placeholder="Nom (ex: Façade Graphite 180mm)" class="w-full border p-3 rounded-lg">
-                    <div class="flex gap-2">
-                        <input type="number" id="itemPrice" placeholder="Prix HT" class="flex-1 border p-3 rounded-lg">
-                        <select id="itemUnit" class="border p-3 rounded-lg bg-white">
-                            <option value="m²">m²</option>
-                            <option value="ml">ml</option>
-                            <option value="U">Unité</option>
-                        </select>
+        <main class="container mx-auto px-4 py-6 max-w-2xl">
+            <section id="section-devis" class="space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                    <h2 class="text-lg font-bold mb-4 text-slate-800">Identification Chantier</h2>
+                    <div class="space-y-3">
+                        <input type="text" id="clientName" placeholder="Nom du Client" class="w-full bg-slate-50 border-none p-4 rounded-xl focus:ring-2 focus:ring-orange-500">
+                        <input type="text" id="clientAddress" placeholder="Adresse du chantier" class="w-full bg-slate-50 border-none p-4 rounded-xl focus:ring-2 focus:ring-orange-500">
                     </div>
-                    <button onclick="saveItem()" id="btnSaveItem" class="w-full bg-slate-800 text-white py-4 rounded-xl font-bold">Enregistrer</button>
                 </div>
-            </div>
 
-            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <table class="w-full text-left text-xs">
-                    <thead class="bg-slate-100">
-                        <tr>
-                            <th class="p-4">Désignation</th>
-                            <th class="p-4 text-right">Prix</th>
-                            <th class="p-4 text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="itemsTable"></tbody>
-                </table>
-            </div>
-        </section>
-    </main>
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                    <h2 class="text-lg font-bold mb-4 text-slate-800 border-b pb-2">Métrés & Prestations</h2>
+                    <div id="itemsContainer" class="space-y-4">
+                        <p class="text-center text-gray-400">Chargement de vos tarifs...</p>
+                    </div>
+                    <button onclick="genererDevisPro()" class="w-full bg-orange-600 text-white font-black py-5 rounded-2xl shadow-xl mt-8 hover:bg-orange-700 transition-all uppercase tracking-wider">
+                        Calculer & Enregistrer
+                    </button>
+                </div>
+
+                <div id="resultat" class="hidden bg-slate-900 text-white p-6 rounded-2xl shadow-2xl border-2 border-orange-500">
+                    <h3 class="text-orange-500 font-bold mb-4 uppercase text-xs">Aperçu du Devis</h3>
+                    <div id="summaryText" class="text-sm font-mono whitespace-pre-line leading-relaxed"></div>
+                    <button onclick="sendWhatsApp()" class="mt-6 bg-green-600 w-full py-4 rounded-xl font-bold uppercase">Envoyer via WhatsApp</button>
+                </div>
+            </section>
+
+            <section id="section-clients" class="hidden space-y-4">
+                <h2 class="font-bold text-slate-700 px-2 uppercase text-xs">Devis récents</h2>
+                <div id="historyList" class="space-y-3 text-sm"></div>
+            </section>
+
+            <section id="section-reglages" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-lg border-2 border-orange-100">
+                    <h2 class="font-bold mb-4">Ajouter / Modifier un tarif</h2>
+                    <input type="hidden" id="editId">
+                    <div class="space-y-3">
+                        <input type="text" id="itemLabel" placeholder="Désignation" class="w-full border p-3 rounded-lg">
+                        <div class="flex gap-2">
+                            <input type="number" id="itemPrice" placeholder="Prix HT" class="flex-1 border p-3 rounded-lg">
+                            <select id="itemUnit" class="border p-3 rounded-lg bg-white">
+                                <option value="m²">m²</option>
+                                <option value="ml">ml</option>
+                                <option value="U">Unité</option>
+                            </select>
+                        </div>
+                        <button onclick="saveItem()" id="btnSaveItem" class="w-full bg-slate-800 text-white py-4 rounded-xl font-bold">Enregistrer</button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <tbody id="itemsTable"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -108,9 +115,64 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
         let currentPrices = [];
 
+        // --- GESTION DE LA CONNEXION ---
+        window.handleLogin = () => {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPass').value;
+            signInWithEmailAndPassword(auth, email, pass).catch(error => {
+                document.getElementById('loginError').classList.remove('hidden');
+            });
+        };
+
+        window.handleLogout = () => { signOut(auth).then(() => location.reload()); };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-content').classList.remove('hidden');
+                startApp(); // Lancer l'écoute des données seulement si connecté
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('app-content').classList.add('hidden');
+            }
+        });
+
+        // --- LOGIQUE DE L'APPLICATION ---
+        function startApp() {
+            onSnapshot(collection(db, "prestations"), (snap) => {
+                const table = document.getElementById('itemsTable');
+                const container = document.getElementById('itemsContainer');
+                table.innerHTML = ""; container.innerHTML = ""; currentPrices = [];
+                snap.forEach(d => {
+                    const item = d.data();
+                    currentPrices.push({id: d.id, ...item});
+                    table.innerHTML += `<tr class="border-t"><td class="p-4"><b>${item.nom}</b></td><td class="p-4 text-right">${item.prix}€</td><td class="p-4 text-center"><button onclick="editItem('${d.id}','${item.nom}',${item.prix},'${item.unite}')" class="text-blue-600 mr-2">Edit</button><button onclick="deleteItem('${d.id}')" class="text-red-500">X</button></td></tr>`;
+                    container.innerHTML += `<div class="bg-slate-50 p-4 rounded-xl flex items-center justify-between border border-slate-200">
+                        <div class="flex-1 pr-2"><p class="text-sm font-bold text-slate-800">${item.nom}</p><p class="text-[10px] text-slate-400">${item.prix}€ / ${item.unite}</p></div>
+                        <div class="flex items-center gap-2"><input type="number" data-id="${d.id}" placeholder="Qté" class="qty-input w-20 p-3 border rounded-lg bg-white shadow-sm font-bold text-center outline-none"><span class="text-xs font-bold text-slate-500">${item.unite}</span></div>
+                    </div>`;
+                });
+            });
+
+            const q = query(collection(db, "archives_devis"), orderBy("timestamp", "desc"));
+            onSnapshot(q, (snap) => {
+                const list = document.getElementById('historyList');
+                list.innerHTML = "";
+                snap.forEach(d => {
+                    const data = d.data();
+                    list.innerHTML += `<div class="bg-white p-4 rounded-xl shadow-sm flex justify-between items-center border-l-4 border-orange-500">
+                        <div><p class="font-bold text-xs uppercase">${data.client}</p><p class="text-orange-600 font-bold">${data.total.toLocaleString()}€ HT</p></div>
+                        <button onclick="deleteDevis('${d.id}')" class="bg-red-50 text-red-500 px-3 py-2 rounded-lg text-[10px] font-bold">SUPPR</button>
+                    </div>`;
+                });
+            });
+        }
+
+        // --- NAVIGATION ET ACTIONS ---
         window.showSection = (id) => {
             ['devis', 'clients', 'reglages'].forEach(s => {
                 document.getElementById('section-'+s).classList.add('hidden');
@@ -126,102 +188,41 @@
             const unit = document.getElementById('itemUnit').value;
             const id = document.getElementById('editId').value;
             if(!label || isNaN(price)) return;
-            if(id) { await updateDoc(doc(db, "prestations", id), { nom: label, prix: price, unite: unit }); }
-            else { await addDoc(collection(db, "prestations"), { nom: label, prix: price, unite: unit }); }
-            clearFields();
+            if(id) await updateDoc(doc(db, "prestations", id), { nom: label, prix: price, unite: unit });
+            else await addDoc(collection(db, "prestations"), { nom: label, prix: price, unite: unit });
+            document.getElementById('itemLabel').value = ""; document.getElementById('itemPrice').value = ""; document.getElementById('editId').value = "";
         };
 
-        window.deleteItem = async (id) => { if(confirm("Supprimer ?")) await deleteDoc(doc(db, "prestations", id)); };
-
         window.editItem = (id, nom, prix, unite) => {
-            document.getElementById('itemLabel').value = nom;
-            document.getElementById('itemPrice').value = prix;
-            document.getElementById('itemUnit').value = unite;
-            document.getElementById('editId').value = id;
+            document.getElementById('itemLabel').value = nom; document.getElementById('itemPrice').value = prix;
+            document.getElementById('itemUnit').value = unite; document.getElementById('editId').value = id;
             document.getElementById('btnSaveItem').innerText = "Mettre à jour";
         };
 
-        function clearFields() {
-            document.getElementById('itemLabel').value = "";
-            document.getElementById('itemPrice').value = "";
-            document.getElementById('editId').value = "";
-            document.getElementById('btnSaveItem').innerText = "Enregistrer";
-        }
-
-        onSnapshot(collection(db, "prestations"), (snap) => {
-            const table = document.getElementById('itemsTable');
-            const container = document.getElementById('itemsContainer');
-            table.innerHTML = "";
-            container.innerHTML = "";
-            currentPrices = [];
-
-            snap.forEach(d => {
-                const item = d.data();
-                currentPrices.push({id: d.id, ...item});
-                
-                table.innerHTML += `<tr class="border-t"><td class="p-4"><b>${item.nom}</b></td><td class="p-4 text-right">${item.prix}€</td><td class="p-4 text-center">
-                    <button onclick="editItem('${d.id}','${item.nom}',${item.prix},'${item.unite}')" class="text-blue-600 font-bold mr-2">Edit</button>
-                    <button onclick="deleteItem('${d.id}')" class="text-red-500 font-bold">X</button>
-                </td></tr>`;
-
-                // LE CHAMP DE SAISIE EST ICI :
-                container.innerHTML += `<div class="bg-slate-50 p-4 rounded-xl flex items-center justify-between border border-slate-200">
-                    <div class="flex-1 pr-2">
-                        <p class="text-sm font-bold text-slate-800">${item.nom}</p>
-                        <p class="text-[10px] text-slate-400">${item.prix}€ / ${item.unite}</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <input type="number" data-id="${d.id}" placeholder="Quantité" class="qty-input w-24 p-3 border rounded-lg bg-white shadow-sm font-bold text-center focus:ring-2 focus:ring-orange-500 outline-none">
-                        <span class="text-xs font-bold text-slate-500 w-6">${item.unite}</span>
-                    </div>
-                </div>`;
-            });
-        });
+        window.deleteItem = async (id) => { if(confirm("Supprimer ?")) await deleteDoc(doc(db, "prestations", id)); };
+        window.deleteDevis = async (id) => { if(confirm("Supprimer ce devis ?")) await deleteDoc(doc(db, "archives_devis", id)); };
 
         window.genererDevisPro = async () => {
             const name = document.getElementById('clientName').value;
             const addr = document.getElementById('clientAddress').value;
             if(!name) return alert("Nom client requis");
-
-            let totalHT = 0;
-            let detailTexte = "";
-            const inputs = document.querySelectorAll('.qty-input');
-
-            inputs.forEach(input => {
+            let totalHT = 0; let detailTexte = "";
+            document.querySelectorAll('.qty-input').forEach(input => {
                 const qte = parseFloat(input.value) || 0;
                 if(qte > 0) {
                     const priceObj = currentPrices.find(p => p.id === input.dataset.id);
-                    const sousTotal = qte * priceObj.prix;
-                    totalHT += sousTotal;
-                    detailTexte += `✅ ${priceObj.nom}\n   ${qte} ${priceObj.unite} x ${priceObj.prix}€ = ${sousTotal.toFixed(2)}€ HT\n\n`;
+                    const st = qte * priceObj.prix; totalHT += st;
+                    detailTexte += `✅ ${priceObj.nom}\n   ${qte} ${priceObj.unite} x ${priceObj.prix}€ = ${st.toFixed(2)}€ HT\n\n`;
                 }
             });
-
-            const dateStr = new Date().toLocaleString('fr-FR');
-            const texte = `🏗️ *DEVIS ISOL-PRESTIGE*\n------------------------------\n*CLIENT :* ${name}\n*LIEU :* ${addr || 'Non précisé'}\n*DATE :* ${dateStr}\n------------------------------\n\n*DÉTAIL :*\n${detailTexte}------------------------------\n*TOTAL : ${totalHT.toLocaleString()}€ HT*\n------------------------------\n\n*PAIEMENT :*\n• 30% Acompte\n• 60% En cours\n• 10% Fin de travaux`;
-
+            const texte = `🏗️ *DEVIS ISOL-PRESTIGE*\n*CLIENT :* ${name}\n*LIEU :* ${addr}\n\n*DÉTAIL :*\n${detailTexte}*TOTAL : ${totalHT.toLocaleString()}€ HT*`;
             document.getElementById('summaryText').innerText = texte;
             document.getElementById('resultat').classList.remove('hidden');
             window.lastEstimation = texte;
-
-            await addDoc(collection(db, "archives_devis"), { client: name, total: totalHT, date: dateStr, timestamp: Date.now() });
+            await addDoc(collection(db, "archives_devis"), { client: name, total: totalHT, timestamp: Date.now() });
         };
 
-        const q = query(collection(db, "archives_devis"), orderBy("timestamp", "desc"));
-        onSnapshot(q, (snap) => {
-            const list = document.getElementById('historyList');
-            list.innerHTML = "";
-            snap.forEach(d => {
-                const data = d.data();
-                list.innerHTML += `<div class="bg-white p-4 rounded-xl shadow-sm flex justify-between items-center border-l-4 border-orange-500">
-                    <div><p class="font-bold text-xs uppercase">${data.client}</p><p class="text-orange-600 font-bold">${data.total.toLocaleString()}€ HT</p></div>
-                    <button onclick="deleteDevis('${d.id}')" class="bg-red-50 text-red-500 px-3 py-2 rounded-lg text-[10px] font-bold">SUPPRIMER</button>
-                </div>`;
-            });
-        });
-
-        window.deleteDevis = async (id) => { if(confirm("Supprimer ce devis ?")) await deleteDoc(doc(db, "archives_devis", id)); };
-        window.sendWhatsApp = () => { window.open("https://wa.me/?text=" + encodeURIComponent(window.lastEstimation), '_blank'); };
+        window.sendWhatsApp = () => window.open("https://wa.me/?text=" + encodeURIComponent(window.lastEstimation), '_blank');
     </script>
 </body>
 </html>
