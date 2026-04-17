@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .active-tab { border-bottom: 4px solid #f97316; color: #f97316; font-weight: bold; }
-        /* Style pour l'écran de chargement/connexion */
         #login-screen { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
     </style>
 </head>
@@ -21,7 +20,7 @@
                 <input type="email" id="loginEmail" placeholder="E-mail" class="w-full p-4 bg-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-orange-500">
                 <input type="password" id="loginPass" placeholder="Mot de passe" class="w-full p-4 bg-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-orange-500">
                 <button onclick="handleLogin()" class="w-full bg-orange-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-orange-700 transition-all">SE CONNECTER</button>
-                <p id="loginError" class="text-red-500 text-xs hidden pt-2">Identifiants incorrects ou accès refusé.</p>
+                <p id="loginError" class="text-red-500 text-xs hidden pt-2">Identifiants incorrects.</p>
             </div>
         </div>
     </div>
@@ -31,9 +30,8 @@
             <div class="container mx-auto px-4 py-4 flex justify-between items-center">
                 <div>
                     <h1 class="text-xl font-black tracking-tighter">ISOL<span class="text-orange-500">-</span>PRESTIGE</h1>
-                    <p class="text-[10px] text-slate-400 uppercase tracking-widest">Logiciel de chiffrage pro</p>
                 </div>
-                <button onclick="handleLogout()" class="text-[10px] border border-slate-700 px-3 py-1 rounded-lg text-slate-400 hover:bg-slate-800">DÉCONNEXION</button>
+                <button onclick="handleLogout()" class="text-xs border border-slate-700 px-3 py-1 rounded-lg text-slate-400">DÉCONNEXION</button>
             </div>
             <div class="flex border-t border-slate-800">
                 <button onclick="showSection('devis')" id="tab-devis" class="flex-1 py-3 text-xs uppercase active-tab">Devis</button>
@@ -45,56 +43,43 @@
         <main class="container mx-auto px-4 py-6 max-w-2xl">
             <section id="section-devis" class="space-y-6">
                 <div class="bg-white p-6 rounded-2xl shadow-lg">
-                    <h2 class="text-lg font-bold mb-4 text-slate-800">Identification Chantier</h2>
+                    <h2 class="text-lg font-bold mb-4">Identification Chantier</h2>
                     <div class="space-y-3">
-                        <input type="text" id="clientName" placeholder="Nom du Client" class="w-full bg-slate-50 border-none p-4 rounded-xl focus:ring-2 focus:ring-orange-500">
-                        <input type="text" id="clientAddress" placeholder="Adresse du chantier" class="w-full bg-slate-50 border-none p-4 rounded-xl focus:ring-2 focus:ring-orange-500">
+                        <input type="text" id="clientName" placeholder="Nom du Client" class="w-full bg-slate-50 p-4 rounded-xl">
+                        <input type="text" id="clientAddress" placeholder="Adresse" class="w-full bg-slate-50 p-4 rounded-xl">
                     </div>
                 </div>
 
                 <div class="bg-white p-6 rounded-2xl shadow-lg">
-                    <h2 class="text-lg font-bold mb-4 text-slate-800 border-b pb-2">Métrés & Prestations</h2>
+                    <h2 class="text-lg font-bold mb-4 border-b pb-2">Métrés & Prestations</h2>
                     <div id="itemsContainer" class="space-y-4">
-                        <p class="text-center text-gray-400">Chargement de vos tarifs...</p>
+                        <p class="text-center text-gray-400">Chargement...</p>
                     </div>
-                    <button onclick="genererDevisPro()" class="w-full bg-orange-600 text-white font-black py-5 rounded-2xl shadow-xl mt-8 hover:bg-orange-700 transition-all uppercase tracking-wider">
-                        Calculer & Enregistrer
-                    </button>
+                    <button onclick="genererDevisPro()" class="w-full bg-orange-600 text-white font-black py-5 rounded-2xl shadow-xl mt-8 uppercase">Calculer & Enregistrer</button>
                 </div>
 
-                <div id="resultat" class="hidden bg-slate-900 text-white p-6 rounded-2xl shadow-2xl border-2 border-orange-500">
-                    <h3 class="text-orange-500 font-bold mb-4 uppercase text-xs">Aperçu du Devis</h3>
-                    <div id="summaryText" class="text-sm font-mono whitespace-pre-line leading-relaxed"></div>
-                    <button onclick="sendWhatsApp()" class="mt-6 bg-green-600 w-full py-4 rounded-xl font-bold uppercase">Envoyer via WhatsApp</button>
+                <div id="resultat" class="hidden bg-slate-900 text-white p-6 rounded-2xl border-2 border-orange-500">
+                    <div id="summaryText" class="text-sm font-mono whitespace-pre-line mb-6"></div>
+                    <button onclick="sendWhatsApp()" class="w-full bg-green-600 py-4 rounded-xl font-bold">ENVOYER WHATSAPP</button>
                 </div>
             </section>
 
             <section id="section-clients" class="hidden space-y-4">
-                <h2 class="font-bold text-slate-700 px-2 uppercase text-xs">Devis récents</h2>
-                <div id="historyList" class="space-y-3 text-sm"></div>
+                <div id="historyList" class="space-y-3"></div>
             </section>
 
             <section id="section-reglages" class="hidden space-y-6">
-                <div class="bg-white p-6 rounded-2xl shadow-lg border-2 border-orange-100">
-                    <h2 class="font-bold mb-4">Ajouter / Modifier un tarif</h2>
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
                     <input type="hidden" id="editId">
-                    <div class="space-y-3">
-                        <input type="text" id="itemLabel" placeholder="Désignation" class="w-full border p-3 rounded-lg">
-                        <div class="flex gap-2">
-                            <input type="number" id="itemPrice" placeholder="Prix HT" class="flex-1 border p-3 rounded-lg">
-                            <select id="itemUnit" class="border p-3 rounded-lg bg-white">
-                                <option value="m²">m²</option>
-                                <option value="ml">ml</option>
-                                <option value="U">Unité</option>
-                            </select>
-                        </div>
-                        <button onclick="saveItem()" id="btnSaveItem" class="w-full bg-slate-800 text-white py-4 rounded-xl font-bold">Enregistrer</button>
+                    <input type="text" id="itemLabel" placeholder="Désignation" class="w-full border p-3 rounded-lg mb-2">
+                    <div class="flex gap-2 mb-2">
+                        <input type="number" id="itemPrice" placeholder="Prix HT" class="flex-1 border p-3 rounded-lg">
+                        <select id="itemUnit" class="border p-3 rounded-lg"><option value="m²">m²</option><option value="ml">ml</option><option value="U">U</option></select>
                     </div>
+                    <button onclick="saveItem()" id="btnSaveItem" class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold">Enregistrer Tarif</button>
                 </div>
                 <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <tbody id="itemsTable"></tbody>
-                    </table>
+                    <table class="w-full text-xs text-left"><tbody id="itemsTable"></tbody></table>
                 </div>
             </section>
         </main>
@@ -119,60 +104,15 @@
         const db = getFirestore(app);
         let currentPrices = [];
 
-        // --- GESTION DE LA CONNEXION ---
+        // --- EXPOSITION DES FONCTIONS AU WINDOW (CRUCIAL) ---
         window.handleLogin = () => {
             const email = document.getElementById('loginEmail').value;
             const pass = document.getElementById('loginPass').value;
-            signInWithEmailAndPassword(auth, email, pass).catch(error => {
-                document.getElementById('loginError').classList.remove('hidden');
-            });
+            signInWithEmailAndPassword(auth, email, pass).catch(e => document.getElementById('loginError').classList.remove('hidden'));
         };
 
-        window.handleLogout = () => { signOut(auth).then(() => location.reload()); };
+        window.handleLogout = () => signOut(auth).then(() => location.reload());
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('app-content').classList.remove('hidden');
-                startApp(); // Lancer l'écoute des données seulement si connecté
-            } else {
-                document.getElementById('login-screen').classList.remove('hidden');
-                document.getElementById('app-content').classList.add('hidden');
-            }
-        });
-
-        // --- LOGIQUE DE L'APPLICATION ---
-        function startApp() {
-            onSnapshot(collection(db, "prestations"), (snap) => {
-                const table = document.getElementById('itemsTable');
-                const container = document.getElementById('itemsContainer');
-                table.innerHTML = ""; container.innerHTML = ""; currentPrices = [];
-                snap.forEach(d => {
-                    const item = d.data();
-                    currentPrices.push({id: d.id, ...item});
-                    table.innerHTML += `<tr class="border-t"><td class="p-4"><b>${item.nom}</b></td><td class="p-4 text-right">${item.prix}€</td><td class="p-4 text-center"><button onclick="editItem('${d.id}','${item.nom}',${item.prix},'${item.unite}')" class="text-blue-600 mr-2">Edit</button><button onclick="deleteItem('${d.id}')" class="text-red-500">X</button></td></tr>`;
-                    container.innerHTML += `<div class="bg-slate-50 p-4 rounded-xl flex items-center justify-between border border-slate-200">
-                        <div class="flex-1 pr-2"><p class="text-sm font-bold text-slate-800">${item.nom}</p><p class="text-[10px] text-slate-400">${item.prix}€ / ${item.unite}</p></div>
-                        <div class="flex items-center gap-2"><input type="number" data-id="${d.id}" placeholder="Qté" class="qty-input w-20 p-3 border rounded-lg bg-white shadow-sm font-bold text-center outline-none"><span class="text-xs font-bold text-slate-500">${item.unite}</span></div>
-                    </div>`;
-                });
-            });
-
-            const q = query(collection(db, "archives_devis"), orderBy("timestamp", "desc"));
-            onSnapshot(q, (snap) => {
-                const list = document.getElementById('historyList');
-                list.innerHTML = "";
-                snap.forEach(d => {
-                    const data = d.data();
-                    list.innerHTML += `<div class="bg-white p-4 rounded-xl shadow-sm flex justify-between items-center border-l-4 border-orange-500">
-                        <div><p class="font-bold text-xs uppercase">${data.client}</p><p class="text-orange-600 font-bold">${data.total.toLocaleString()}€ HT</p></div>
-                        <button onclick="deleteDevis('${d.id}')" class="bg-red-50 text-red-500 px-3 py-2 rounded-lg text-[10px] font-bold">SUPPR</button>
-                    </div>`;
-                });
-            });
-        }
-
-        // --- NAVIGATION ET ACTIONS ---
         window.showSection = (id) => {
             ['devis', 'clients', 'reglages'].forEach(s => {
                 document.getElementById('section-'+s).classList.add('hidden');
@@ -182,66 +122,97 @@
             document.getElementById('tab-'+id).classList.add('active-tab');
         };
 
+        window.startVoice = (inputId) => {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) return alert("Votre navigateur ne supporte pas la dictée vocale.");
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'fr-FR';
+            recognition.onstart = () => { document.querySelector(`[onclick="startVoice('${inputId}')"]`).classList.add('bg-red-500', 'animate-pulse'); };
+            recognition.onend = () => { document.querySelector(`[onclick="startVoice('${inputId}')"]`).classList.remove('bg-red-500', 'animate-pulse'); };
+            recognition.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                const val = text.replace(/[^0-9,.]/g, '').replace(',', '.');
+                document.getElementById(inputId).value = val;
+            };
+            recognition.start();
+        };
+
+        // --- ÉCOUTE AUTH ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-content').classList.remove('hidden');
+                initApp();
+            }
+        });
+
+        function initApp() {
+            onSnapshot(collection(db, "prestations"), (snap) => {
+                const container = document.getElementById('itemsContainer');
+                const table = document.getElementById('itemsTable');
+                container.innerHTML = ""; table.innerHTML = ""; currentPrices = [];
+                snap.forEach(d => {
+                    const item = d.data(); currentPrices.push({id: d.id, ...item});
+                    // Ligne dans réglages
+                    table.innerHTML += `<tr class="border-t"><td class="p-3"><b>${item.nom}</b></td><td class="p-3 text-right">${item.prix}€</td><td class="p-3 text-center"><button onclick="deleteItem('${d.id}')" class="text-red-500">X</button></td></tr>`;
+                    // Bloc dans Devis avec Micro
+                    container.innerHTML += `
+                    <div class="bg-slate-50 p-4 rounded-xl flex items-center justify-between border border-slate-200">
+                        <div class="flex-1"><p class="text-sm font-bold">${item.nom}</p><p class="text-[10px] text-gray-400">${item.prix}€ / ${item.unite}</p></div>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="input-${d.id}" data-id="${d.id}" placeholder="0" class="qty-input w-16 p-2 border rounded-lg text-center font-bold">
+                            <button onclick="startVoice('input-${d.id}')" class="p-2 bg-slate-200 rounded-lg text-lg">🎤</button>
+                        </div>
+                    </div>`;
+                });
+            });
+
+            onSnapshot(query(collection(db, "archives_devis"), orderBy("timestamp", "desc")), (snap) => {
+                const list = document.getElementById('historyList');
+                list.innerHTML = "";
+                snap.forEach(d => {
+                    const data = d.data();
+                    list.innerHTML += `<div class="bg-white p-4 rounded-xl shadow-sm flex justify-between items-center border-l-4 border-orange-500">
+                        <div><p class="font-bold text-xs uppercase">${data.client}</p><p class="text-orange-600 font-bold">${data.total.toLocaleString()}€ HT</p></div>
+                        <button onclick="deleteDevis('${d.id}')" class="text-red-400 text-[10px]">SUPPRIMER</button>
+                    </div>`;
+                });
+            });
+        }
+
+        // --- ACTIONS DB ---
         window.saveItem = async () => {
             const label = document.getElementById('itemLabel').value;
             const price = parseFloat(document.getElementById('itemPrice').value);
             const unit = document.getElementById('itemUnit').value;
-            const id = document.getElementById('editId').value;
             if(!label || isNaN(price)) return;
-            if(id) await updateDoc(doc(db, "prestations", id), { nom: label, prix: price, unite: unit });
-            else await addDoc(collection(db, "prestations"), { nom: label, prix: price, unite: unit });
-            document.getElementById('itemLabel').value = ""; document.getElementById('itemPrice').value = ""; document.getElementById('editId').value = "";
-        };
-
-        window.editItem = (id, nom, prix, unite) => {
-            document.getElementById('itemLabel').value = nom; document.getElementById('itemPrice').value = prix;
-            document.getElementById('itemUnit').value = unite; document.getElementById('editId').value = id;
-            document.getElementById('btnSaveItem').innerText = "Mettre à jour";
+            await addDoc(collection(db, "prestations"), { nom: label, prix: price, unite: unit });
+            document.getElementById('itemLabel').value = ""; document.getElementById('itemPrice').value = "";
         };
 
         window.deleteItem = async (id) => { if(confirm("Supprimer ?")) await deleteDoc(doc(db, "prestations", id)); };
-        window.deleteDevis = async (id) => { if(confirm("Supprimer ce devis ?")) await deleteDoc(doc(db, "archives_devis", id)); };
+        window.deleteDevis = async (id) => { if(confirm("Supprimer ?")) await deleteDoc(doc(db, "archives_devis", id)); };
 
         window.genererDevisPro = async () => {
             const name = document.getElementById('clientName').value;
-            const addr = document.getElementById('clientAddress').value;
-            if(!name) return alert("Nom client requis");
-            let totalHT = 0; let detailTexte = "";
+            if(!name) return alert("Nom requis");
+            let total = 0; let detail = "";
             document.querySelectorAll('.qty-input').forEach(input => {
                 const qte = parseFloat(input.value) || 0;
                 if(qte > 0) {
-                    const priceObj = currentPrices.find(p => p.id === input.dataset.id);
-                    const st = qte * priceObj.prix; totalHT += st;
-                    detailTexte += `✅ ${priceObj.nom}\n   ${qte} ${priceObj.unite} x ${priceObj.prix}€ = ${st.toFixed(2)}€ HT\n\n`;
+                    const p = currentPrices.find(x => x.id === input.dataset.id);
+                    const st = qte * p.prix; total += st;
+                    detail += `✅ ${p.nom}\n   ${qte} ${p.unite} x ${p.prix}€ = ${st.toFixed(2)}€ HT\n\n`;
                 }
             });
-            const texte = `🏗️ *DEVIS ISOL-PRESTIGE*\n*CLIENT :* ${name}\n*LIEU :* ${addr}\n\n*DÉTAIL :*\n${detailTexte}*TOTAL : ${totalHT.toLocaleString()}€ HT*`;
-            document.getElementById('summaryText').innerText = texte;
+            const res = `🏗️ *ISOL-PRESTIGE*\n*CLIENT :* ${name}\n\n${detail}*TOTAL : ${total.toLocaleString()}€ HT*`;
+            document.getElementById('summaryText').innerText = res;
             document.getElementById('resultat').classList.remove('hidden');
-            window.lastEstimation = texte;
-            await addDoc(collection(db, "archives_devis"), { client: name, total: totalHT, timestamp: Date.now() });
+            window.lastEstimation = res;
+            await addDoc(collection(db, "archives_devis"), { client: name, total: total, timestamp: Date.now() });
         };
 
-        window.sendWhatsApp = () => window.open("https://wa.me/?text=" + encodeURIComponent(window.lastEstimation), '_blank');
-        // Fonction pour écouter la voix et remplir un champ
-window.startVoice = (inputId) => {
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'fr-FR'; // On règle sur le Français
-
-    recognition.onstart = () => {
-        console.log("L'IA t'écoute...");
-        // On peut changer la couleur du bouton ici pour montrer que ça écoute
-    };
-
-    recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        // On nettoie le texte (ex: enlever "m2" si tu le dis)
-        const value = transcript.replace(/[^0-9.]/g, ''); 
-        document.getElementById(inputId).value = value;
-    };
-
-    recognition.start();
-};
+        window.sendWhatsApp = () => window.open("https://wa.me/?text=" + encodeURIComponent(window.lastEstimation));
     </script>
 </body>
 </html>
