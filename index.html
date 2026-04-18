@@ -1,218 +1,260 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISOL-PRESTIGE | Expert System</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .active-tab { border-bottom: 4px solid #f97316; color: #f97316; font-weight: bold; }
-        #login-screen { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISOL-PRESTIGE</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+.active-tab { border-bottom: 4px solid #f97316; color: #f97316; font-weight: bold; }
+#login-screen { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+</style>
 </head>
+
 <body class="bg-gray-100 min-h-screen">
 
-    <div id="login-screen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md text-center">
-            <h1 class="text-2xl font-black mb-2 text-slate-800 tracking-tighter">ISOL<span class="text-orange-500">-</span>PRESTIGE</h1>
-            <p class="text-gray-400 text-sm mb-8 uppercase tracking-widest font-bold">Accès Restreint</p>
-            <div class="space-y-4">
-                <input type="email" id="loginEmail" placeholder="E-mail" class="w-full p-4 bg-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-orange-500">
-                <input type="password" id="loginPass" placeholder="Mot de passe" class="w-full p-4 bg-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-orange-500">
-                <button onclick="handleLogin()" class="w-full bg-orange-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-orange-700 transition-all">SE CONNECTER</button>
-                <p id="loginError" class="text-red-500 text-xs hidden pt-2">Identifiants incorrects.</p>
-            </div>
-        </div>
-    </div>
+<!-- LOGIN -->
+<div id="login-screen" class="fixed inset-0 flex items-center justify-center">
+<div class="bg-white p-6 rounded-xl w-80">
+<input id="loginEmail" placeholder="Email" class="w-full p-3 mb-2 bg-gray-100 rounded">
+<input id="loginPass" type="password" placeholder="Password" class="w-full p-3 mb-4 bg-gray-100 rounded">
+<button onclick="handleLogin()" class="w-full bg-orange-600 text-white p-3 rounded">Login</button>
+<p id="loginError" class="text-red-500 hidden text-sm mt-2">Erreur</p>
+</div>
+</div>
 
-    <div id="app-content" class="hidden">
-        <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-2xl">
-            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-                <div>
-                    <h1 class="text-xl font-black tracking-tighter">ISOL<span class="text-orange-500">-</span>PRESTIGE</h1>
-                </div>
-                <button onclick="handleLogout()" class="text-xs border border-slate-700 px-3 py-1 rounded-lg text-slate-400">DÉCONNEXION</button>
-            </div>
-            <div class="flex border-t border-slate-800">
-                <button onclick="showSection('devis')" id="tab-devis" class="flex-1 py-3 text-xs uppercase active-tab">Devis</button>
-                <button onclick="showSection('clients')" id="tab-clients" class="flex-1 py-3 text-xs uppercase">Clients</button>
-                <button onclick="showSection('reglages')" id="tab-reglages" class="flex-1 py-3 text-xs uppercase text-orange-400">Tarifs</button>
-            </div>
-        </header>
+<div id="app-content" class="hidden">
 
-        <main class="container mx-auto px-4 py-6 max-w-2xl">
-            <section id="section-devis" class="space-y-6">
-                <div class="bg-white p-6 rounded-2xl shadow-lg">
-                    <h2 class="text-lg font-bold mb-4">Identification Chantier</h2>
-                    <div class="space-y-3">
-                        <input type="text" id="clientName" placeholder="Nom du Client" class="w-full bg-slate-50 p-4 rounded-xl">
-                        <input type="text" id="clientAddress" placeholder="Adresse" class="w-full bg-slate-50 p-4 rounded-xl">
-                    </div>
-                </div>
+<header class="bg-slate-900 text-white p-4 flex justify-between">
+<h1>ISOL-PRESTIGE</h1>
+<button onclick="handleLogout()">Logout</button>
+</header>
 
-                <div class="bg-white p-6 rounded-2xl shadow-lg">
-                    <h2 class="text-lg font-bold mb-4 border-b pb-2">Métrés & Prestations</h2>
-                    <div id="itemsContainer" class="space-y-4">
-                        <p class="text-center text-gray-400">Chargement...</p>
-                    </div>
-                    <button onclick="genererDevisPro()" class="w-full bg-orange-600 text-white font-black py-5 rounded-2xl shadow-xl mt-8 uppercase">Calculer & Enregistrer</button>
-                </div>
+<div class="flex">
+<button onclick="showSection('devis')" id="tab-devis" class="flex-1 p-2 active-tab">Devis</button>
+<button onclick="showSection('clients')" id="tab-clients" class="flex-1 p-2">Clients</button>
+<button onclick="showSection('reglages')" id="tab-reglages" class="flex-1 p-2">Tarifs</button>
+</div>
 
-                <div id="resultat" class="hidden bg-slate-900 text-white p-6 rounded-2xl border-2 border-orange-500">
-                    <div id="summaryText" class="text-sm font-mono whitespace-pre-line mb-6"></div>
-                    <button onclick="sendWhatsApp()" class="w-full bg-green-600 py-4 rounded-xl font-bold">ENVOYER WHATSAPP</button>
-                </div>
-            </section>
+<main class="p-4 max-w-xl mx-auto">
 
-            <section id="section-clients" class="hidden space-y-4">
-                <div id="historyList" class="space-y-3"></div>
-            </section>
+<!-- DEVIS -->
+<section id="section-devis">
 
-            <section id="section-reglages" class="hidden space-y-6">
-                <div class="bg-white p-6 rounded-2xl shadow-lg">
-                    <input type="hidden" id="editId">
-                    <input type="text" id="itemLabel" placeholder="Désignation" class="w-full border p-3 rounded-lg mb-2">
-                    <div class="flex gap-2 mb-2">
-                        <input type="number" id="itemPrice" placeholder="Prix HT" class="flex-1 border p-3 rounded-lg">
-                        <select id="itemUnit" class="border p-3 rounded-lg"><option value="m²">m²</option><option value="ml">ml</option><option value="U">U</option></select>
-                    </div>
-                    <button onclick="saveItem()" id="btnSaveItem" class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold">Enregistrer Tarif</button>
-                </div>
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                    <table class="w-full text-xs text-left"><tbody id="itemsTable"></tbody></table>
-                </div>
-            </section>
-        </main>
-    </div>
+<div class="bg-white p-4 mb-4 rounded">
+<input id="clientName" placeholder="Nom client" class="w-full p-3 mb-2 bg-gray-100 rounded">
+<input id="clientAddress" placeholder="Adresse" class="w-full p-3 bg-gray-100 rounded">
+</div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<!-- MODULE FACADE -->
+<div class="bg-white p-4 mb-4 rounded">
+<h2 class="font-bold mb-2">Calcul façade</h2>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBeSwiReLvYaV47FSQKLTGEo0ynA8gM1f8",
-            authDomain: "app-isol.firebaseapp.com",
-            projectId: "app-isol",
-            storageBucket: "app-isol.firebasestorage.app",
-            messagingSenderId: "49748280512",
-            appId: "1:49748280512:web:76e89909bf358434689925"
-        };
+<select id="facadeType" class="w-full p-2 mb-2 bg-gray-100 rounded">
+<option value="rectangle">Façade simple</option>
+<option value="pignon">Façade pignon</option>
+</select>
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        let currentPrices = [];
+<div class="grid grid-cols-2 gap-2">
+<input id="facadeL" type="number" placeholder="Largeur" class="p-2 bg-gray-100 rounded">
+<input id="facadeH" type="number" placeholder="Hauteur" class="p-2 bg-gray-100 rounded">
+</div>
 
-        // --- EXPOSITION DES FONCTIONS AU WINDOW (CRUCIAL) ---
-        window.handleLogin = () => {
-            const email = document.getElementById('loginEmail').value;
-            const pass = document.getElementById('loginPass').value;
-            signInWithEmailAndPassword(auth, email, pass).catch(e => document.getElementById('loginError').classList.remove('hidden'));
-        };
+<input id="facadeHp" type="number" placeholder="Hauteur pignon" class="p-2 bg-gray-100 rounded mt-2 hidden">
 
-        window.handleLogout = () => signOut(auth).then(() => location.reload());
+<button onclick="calculerSurface()" class="w-full mt-2 bg-slate-800 text-white p-2 rounded">Calculer</button>
+<p id="surfaceResult" class="mt-2 text-orange-600 font-bold"></p>
+</div>
 
-        window.showSection = (id) => {
-            ['devis', 'clients', 'reglages'].forEach(s => {
-                document.getElementById('section-'+s).classList.add('hidden');
-                document.getElementById('tab-'+s).classList.remove('active-tab');
-            });
-            document.getElementById('section-'+id).classList.remove('hidden');
-            document.getElementById('tab-'+id).classList.add('active-tab');
-        };
+<!-- PRESTATIONS -->
+<div class="bg-white p-4 rounded">
+<div id="itemsContainer"></div>
+<button onclick="genererDevisPro()" class="w-full mt-4 bg-orange-600 text-white p-3 rounded">
+Générer devis
+</button>
+</div>
 
-        window.startVoice = (inputId) => {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) return alert("Votre navigateur ne supporte pas la dictée vocale.");
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'fr-FR';
-            recognition.onstart = () => { document.querySelector(`[onclick="startVoice('${inputId}')"]`).classList.add('bg-red-500', 'animate-pulse'); };
-            recognition.onend = () => { document.querySelector(`[onclick="startVoice('${inputId}')"]`).classList.remove('bg-red-500', 'animate-pulse'); };
-            recognition.onresult = (event) => {
-                const text = event.results[0][0].transcript;
-                const val = text.replace(/[^0-9,.]/g, '').replace(',', '.');
-                document.getElementById(inputId).value = val;
-            };
-            recognition.start();
-        };
+<div id="resultat" class="hidden bg-slate-900 text-white p-4 mt-4 rounded">
+<pre id="summaryText"></pre>
+<button onclick="sendWhatsApp()" class="w-full bg-green-600 mt-3 p-3 rounded">
+Envoyer WhatsApp
+</button>
+</div>
 
-        // --- ÉCOUTE AUTH ---
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('app-content').classList.remove('hidden');
-                initApp();
-            }
-        });
+</section>
 
-        function initApp() {
-            onSnapshot(collection(db, "prestations"), (snap) => {
-                const container = document.getElementById('itemsContainer');
-                const table = document.getElementById('itemsTable');
-                container.innerHTML = ""; table.innerHTML = ""; currentPrices = [];
-                snap.forEach(d => {
-                    const item = d.data(); currentPrices.push({id: d.id, ...item});
-                    // Ligne dans réglages
-                    table.innerHTML += `<tr class="border-t"><td class="p-3"><b>${item.nom}</b></td><td class="p-3 text-right">${item.prix}€</td><td class="p-3 text-center"><button onclick="deleteItem('${d.id}')" class="text-red-500">X</button></td></tr>`;
-                    // Bloc dans Devis avec Micro
-                    container.innerHTML += `
-                    <div class="bg-slate-50 p-4 rounded-xl flex items-center justify-between border border-slate-200">
-                        <div class="flex-1"><p class="text-sm font-bold">${item.nom}</p><p class="text-[10px] text-gray-400">${item.prix}€ / ${item.unite}</p></div>
-                        <div class="flex items-center gap-2">
-                            <input type="number" id="input-${d.id}" data-id="${d.id}" placeholder="0" class="qty-input w-16 p-2 border rounded-lg text-center font-bold">
-                            <button onclick="startVoice('input-${d.id}')" class="p-2 bg-slate-200 rounded-lg text-lg">🎤</button>
-                        </div>
-                    </div>`;
-                });
-            });
+<!-- CLIENTS -->
+<section id="section-clients" class="hidden">
+<div id="historyList"></div>
+</section>
 
-            onSnapshot(query(collection(db, "archives_devis"), orderBy("timestamp", "desc")), (snap) => {
-                const list = document.getElementById('historyList');
-                list.innerHTML = "";
-                snap.forEach(d => {
-                    const data = d.data();
-                    list.innerHTML += `<div class="bg-white p-4 rounded-xl shadow-sm flex justify-between items-center border-l-4 border-orange-500">
-                        <div><p class="font-bold text-xs uppercase">${data.client}</p><p class="text-orange-600 font-bold">${data.total.toLocaleString()}€ HT</p></div>
-                        <button onclick="deleteDevis('${d.id}')" class="text-red-400 text-[10px]">SUPPRIMER</button>
-                    </div>`;
-                });
-            });
-        }
+<!-- TARIFS -->
+<section id="section-reglages" class="hidden">
 
-        // --- ACTIONS DB ---
-        window.saveItem = async () => {
-            const label = document.getElementById('itemLabel').value;
-            const price = parseFloat(document.getElementById('itemPrice').value);
-            const unit = document.getElementById('itemUnit').value;
-            if(!label || isNaN(price)) return;
-            await addDoc(collection(db, "prestations"), { nom: label, prix: price, unite: unit });
-            document.getElementById('itemLabel').value = ""; document.getElementById('itemPrice').value = "";
-        };
+<div class="bg-white p-4 mb-4 rounded">
+<input id="itemLabel" placeholder="Nom" class="w-full p-2 mb-2 border">
+<input id="itemPrice" placeholder="Prix" type="number" class="w-full p-2 mb-2 border">
+<select id="itemUnit" class="w-full p-2 border">
+<option value="m²">m²</option>
+<option value="ml">ml</option>
+<option value="U">U</option>
+</select>
+<button onclick="saveItem()" class="w-full mt-2 bg-black text-white p-2 rounded">Ajouter</button>
+</div>
 
-        window.deleteItem = async (id) => { if(confirm("Supprimer ?")) await deleteDoc(doc(db, "prestations", id)); };
-        window.deleteDevis = async (id) => { if(confirm("Supprimer ?")) await deleteDoc(doc(db, "archives_devis", id)); };
+<div id="itemsTable"></div>
 
-        window.genererDevisPro = async () => {
-            const name = document.getElementById('clientName').value;
-            if(!name) return alert("Nom requis");
-            let total = 0; let detail = "";
-            document.querySelectorAll('.qty-input').forEach(input => {
-                const qte = parseFloat(input.value) || 0;
-                if(qte > 0) {
-                    const p = currentPrices.find(x => x.id === input.dataset.id);
-                    const st = qte * p.prix; total += st;
-                    detail += `✅ ${p.nom}\n   ${qte} ${p.unite} x ${p.prix}€ = ${st.toFixed(2)}€ HT\n\n`;
-                }
-            });
-            const res = `🏗️ *ISOL-PRESTIGE*\n*CLIENT :* ${name}\n\n${detail}*TOTAL : ${total.toLocaleString()}€ HT*`;
-            document.getElementById('summaryText').innerText = res;
-            document.getElementById('resultat').classList.remove('hidden');
-            window.lastEstimation = res;
-            await addDoc(collection(db, "archives_devis"), { client: name, total: total, timestamp: Date.now() });
-        };
+</section>
 
-        window.sendWhatsApp = () => window.open("https://wa.me/?text=" + encodeURIComponent(window.lastEstimation));
-    </script>
+</main>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app = initializeApp({ apiKey:"xxx",authDomain:"xxx",projectId:"xxx" });
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentPrices=[];
+let lastSurface=0;
+
+window.handleLogin=()=> signInWithEmailAndPassword(auth,loginEmail.value,loginPass.value)
+.catch(()=>loginError.classList.remove("hidden"));
+
+window.handleLogout=()=>signOut(auth);
+
+window.showSection=id=>{
+["devis","clients","reglages"].forEach(s=>{
+document.getElementById("section-"+s).classList.add("hidden");
+document.getElementById("tab-"+s).classList.remove("active-tab");
+});
+document.getElementById("section-"+id).classList.remove("hidden");
+document.getElementById("tab-"+id).classList.add("active-tab");
+};
+
+onAuthStateChanged(auth,user=>{
+if(user){
+document.getElementById("login-screen").style.display="none";
+document.getElementById("app-content").classList.remove("hidden");
+init();
+}
+});
+
+function init(){
+
+onSnapshot(collection(db,"prestations"),snap=>{
+itemsContainer.innerHTML="";
+itemsTable.innerHTML="";
+currentPrices=[];
+
+snap.forEach(d=>{
+let item=d.data();
+currentPrices.push({id:d.id,...item});
+
+itemsContainer.innerHTML+=`
+<div class="flex justify-between border-b p-2">
+<span>${item.nom}</span>
+<input type="number" data-id="${d.id}" class="qty-input w-16 border text-center">
+</div>`;
+
+itemsTable.innerHTML+=`
+<div class="flex justify-between border-b p-2">
+<span>${item.nom} (${item.prix}€/${item.unite})</span>
+<button onclick="deleteItem('${d.id}')" class="text-red-500">X</button>
+</div>`;
+});
+});
+
+onSnapshot(query(collection(db,"archives_devis"),orderBy("date","desc")),snap=>{
+historyList.innerHTML="";
+snap.forEach(d=>{
+let data=d.data();
+historyList.innerHTML+=`
+<div class="bg-white p-3 mb-2 flex justify-between">
+<div>${data.client} - ${data.total}€</div>
+<button onclick="deleteDevis('${d.id}')">X</button>
+</div>`;
+});
+});
+
+}
+
+window.saveItem=async()=>{
+await addDoc(collection(db,"prestations"),{
+nom:itemLabel.value,
+prix:parseFloat(itemPrice.value),
+unite:itemUnit.value
+});
+};
+
+window.deleteItem=id=>deleteDoc(doc(db,"prestations",id));
+window.deleteDevis=id=>deleteDoc(doc(db,"archives_devis",id));
+
+window.calculerSurface=()=>{
+let L=+facadeL.value||0;
+let H=+facadeH.value||0;
+let Hp=+facadeHp.value||0;
+
+let surface = facadeType.value==="pignon"
+? (L*H)+(L*Hp/2)
+: L*H;
+
+lastSurface=surface.toFixed(2);
+surfaceResult.innerText="Surface : "+lastSurface+" m²";
+
+document.querySelectorAll(".qty-input").forEach(i=>{
+let p=currentPrices.find(x=>x.id===i.dataset.id);
+if(p.unite==="m²") i.value=lastSurface;
+});
+};
+
+facadeType.addEventListener("change",()=>{
+facadeHp.classList.toggle("hidden",facadeType.value!=="pignon");
+});
+
+window.genererDevisPro=async()=>{
+let total=0,detail="";
+
+document.querySelectorAll(".qty-input").forEach(i=>{
+let q=+i.value||0;
+if(q>0){
+let p=currentPrices.find(x=>x.id===i.dataset.id);
+let st=q*p.prix;
+total+=st;
+detail+=`${p.nom} ${q} x ${p.prix}€ = ${st}€\n`;
+}
+});
+
+let txt=`ISOL-PRESTIGE
+Client : ${clientName.value}
+
+Surface : ${lastSurface} m²
+
+${detail}
+
+TOTAL : ${total}€ HT`;
+
+summaryText.innerText=txt;
+resultat.classList.remove("hidden");
+
+window.lastEstimation=txt;
+
+await addDoc(collection(db,"archives_devis"),{
+client:clientName.value,
+total,
+surface:lastSurface,
+date:Date.now()
+});
+};
+
+window.sendWhatsApp=()=>window.open("https://wa.me/?text="+encodeURIComponent(lastEstimation));
+
+</script>
+
 </body>
 </html>
