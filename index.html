@@ -123,18 +123,19 @@ const db = getFirestore(app);
 let currentPrices=[];
 let lastSurface=0;
 
-window.handleLogin=()=> signInWithEmailAndPassword(auth,loginEmail.value,loginPass.value)
-.catch(()=>loginError.classList.remove("hidden"));
+window.handleLogin = () => {
+    const email = document.getElementById("loginEmail").value;
+    const pass = document.getElementById("loginPass").value;
 
-window.handleLogout=()=>signOut(auth);
-
-window.showSection=id=>{
-["devis","clients","reglages"].forEach(s=>{
-document.getElementById("section-"+s).classList.add("hidden");
-document.getElementById("tab-"+s).classList.remove("active-tab");
-});
-document.getElementById("section-"+id).classList.remove("hidden");
-document.getElementById("tab-"+id).classList.add("active-tab");
+    signInWithEmailAndPassword(auth, email, pass)
+        .then(() => {
+            console.log("Connexion OK");
+        })
+        .catch((error) => {
+            console.error("ERREUR FIREBASE :", error);
+            document.getElementById("loginError").innerText = error.message;
+            document.getElementById("loginError").classList.remove("hidden");
+        });
 };
 
 onAuthStateChanged(auth,user=>{
