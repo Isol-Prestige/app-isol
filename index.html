@@ -130,7 +130,15 @@ Envoyer WhatsApp
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-
+    
+window.showSection = (id) => {
+    ['devis', 'clients', 'reglages'].forEach(s => {
+        document.getElementById('section-'+s).classList.add('hidden');
+        document.getElementById('tab-'+s).classList.remove('active-tab');
+    });
+    document.getElementById('section-'+id).classList.remove('hidden');
+    document.getElementById('tab-'+id).classList.add('active-tab');
+};
 let currentPrices=[];
 let lastSurface=0;
 
@@ -148,7 +156,11 @@ window.handleLogin = () => {
             document.getElementById("loginError").classList.remove("hidden");
         });
 };
-
+    
+window.handleLogout = () => { 
+    signOut(auth).then(() => location.reload()); 
+};
+    
 onAuthStateChanged(auth,user=>{
 if(user){
 document.getElementById("login-screen").style.display="none";
