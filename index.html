@@ -111,14 +111,25 @@ Envoyer WhatsApp
 </div>
 
 <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    // Tes vraies clés de configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBeSwiReLvYaV47FSQKLTGEo0ynA8gM1f8",
+        authDomain: "app-isol.firebaseapp.com",
+        projectId: "app-isol",
+        storageBucket: "app-isol.firebasestorage.app",
+        messagingSenderId: "49748280512",
+        appId: "1:49748280512:web:76e89909bf358434689925",
+        measurementId: "G-Y8LNJQ713T"
+    };
 
-const app = initializeApp({ apiKey:"xxx",authDomain:"xxx",projectId:"xxx" });
-const auth = getAuth(app);
-const db = getFirestore(app);
+    // Initialisation
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
 let currentPrices=[];
 let lastSurface=0;
