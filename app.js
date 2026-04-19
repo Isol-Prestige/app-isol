@@ -98,7 +98,7 @@ const FACADE_TYPES = [
 window.ajouterFacade = () => {
   const id = "f" + Date.now();
   const nom = "Façade " + facadeCounter++;
-  facades.push({ id, nom, type: "rectangle", L:0, H:0, Hp:0, Hp2:0, B2:0, surface:0, mlOuv:0, mlArrets:0, nbFenetres:0, photo:null, commentaire:"" });
+  facades.push({ id, nom, type: "rectangle", L:0, H:0, Hp:0, Hp2:0, B2:0, surface:0, surfaceNette:0, ouvertures:[], mlArrets:0, photo:null, commentaire:"" });
   renderFacades();
 };
 
@@ -130,8 +130,8 @@ function renderFacades() {
       renderFacades();
     });
 
-    // Inputs numériques
-    ["L","H","Hp","Hp2","B2","mlOuv","mlArrets","nbFenetres"].forEach(key => {
+    // Inputs numériques dimensions façade
+    ["L","H","Hp","Hp2","B2","mlArrets"].forEach(key => {
       const inp = el.querySelector(`[data-key="${key}"]`);
       if (!inp) return;
       inp.addEventListener("input", e => {
@@ -153,6 +153,9 @@ function renderFacades() {
 
     // Calcul
     el.querySelector(".btn-calc-facade").addEventListener("click", () => calcFacade(f));
+
+    // Ouvertures
+    bindOuverturesEvents(f);
   });
 }
 
@@ -196,7 +199,7 @@ function buildFacadeHTML(f) {
   }
 
   const surfaceBadge = f.surface > 0
-    ? `<span class="surface-badge">${f.surface} m²</span>`
+    ? `<span class="surface-badge">${f.surfaceNette} m² net</span><span class="chip" style="font-size:10px;margin-left:4px">${f.surface} brut</span>`
     : `<span class="chip">Non calculé</span>`;
 
   const photoHTML = f.photo
@@ -235,24 +238,29 @@ function buildFacadeHTML(f) {
     📐 Calculer surface
   </button>
 
-  <!-- ML Ouvertures -->
+  <!-- Ouvertures (fenêtres, portes…) -->
+  <div style="background:#f8fafc;border-radius:8px;padding:10px;margin-bottom:10px" id="ouv-container-${f.id}">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px">
+        Ouvertures (déduction + ML)
+      </div>
+      <button class="btn btn-sm btn-ghost" onclick="ajouterOuverture('${f.id}')" style="padding:4px 10px;font-size:11px">+ Ouverture</button>
+    </div>
+    ${buildOuverturesHTML(f)}
+    <div style="margin-top:8px;padding:6px 10px;background:white;border-radius:6px;border:1px solid var(--gray-border);display:flex;justify-content:space-between;font-size:12px">
+      <span style="color:var(--text-muted)">Surface ouvertures : <strong style="color:var(--red)" id="ouv-surf-${f.id}">${calcSurfOuv(f).toFixed(2)} m²</strong></span>
+      <span style="color:var(--text-muted)">ML périmètre : <strong style="color:var(--orange)" id="ouv-ml-${f.id}">${calcMLOuv(f).toFixed(1)} ml</strong></span>
+    </div>
+  </div>
+
+  <!-- ML arrêts manuels -->
   <div style="background:#f8fafc;border-radius:8px;padding:10px;margin-bottom:10px">
     <div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">
-      Métrés linéaires
+      ML arrêts / jonctions (saisi manuellement)
     </div>
-    <div class="grid-3">
-      <div class="input-group">
-        <label class="field-label">ML baguettes ouv.</label>
-        <input data-key="mlOuv" type="number" class="input input-sm" value="${f.mlOuv||""}" placeholder="0.00" step="0.1">
-      </div>
-      <div class="input-group">
-        <label class="field-label">ML arrêts</label>
-        <input data-key="mlArrets" type="number" class="input input-sm" value="${f.mlArrets||""}" placeholder="0.00" step="0.1">
-      </div>
-      <div class="input-group">
-        <label class="field-label">Nb fenêtres</label>
-        <input data-key="nbFenetres" type="number" class="input input-sm" value="${f.nbFenetres||""}" placeholder="0">
-      </div>
+    <div class="input-group">
+      <label class="field-label">ML arrêts — soubassement, angles, jonctions… (ml)</label>
+      <input data-key="mlArrets" type="number" class="input input-sm" value="${f.mlArrets||""}" placeholder="0.00" step="0.1">
     </div>
   </div>
 
@@ -271,9 +279,118 @@ function buildFacadeHTML(f) {
 }
 
 function updateFacadeTypeFields(f) {
-  // Reset extra dims when type changes
-  f.Hp = 0; f.Hp2 = 0; f.B2 = 0; f.surface = 0;
+  f.Hp = 0; f.Hp2 = 0; f.B2 = 0; f.surface = 0; f.surfaceNette = 0;
 }
+
+// ─── OUVERTURES ───────────────────────────────────────────────────────────────
+const OUV_TYPES = [
+  { val: "fenetre",       label: "Fenêtre" },
+  { val: "porte",         label: "Porte d'entrée" },
+  { val: "porte_garage",  label: "Porte de garage" },
+  { val: "baie",          label: "Baie vitrée" },
+  { val: "autre",         label: "Autre" },
+];
+
+function buildOuverturesHTML(f) {
+  if (!f.ouvertures || f.ouvertures.length === 0) {
+    return `<div style="text-align:center;font-size:12px;color:#94a3b8;padding:6px 0">Aucune ouverture — cliquez + Ouverture</div>`;
+  }
+  return f.ouvertures.map((o, i) => {
+    const typeOpts = OUV_TYPES.map(t =>
+      `<option value="${t.val}" ${o.type === t.val ? "selected" : ""}>${t.label}</option>`
+    ).join("");
+    const surf = ((o.L||0) * (o.H||0)).toFixed(2);
+    const ml   = (2 * ((o.L||0) + (o.H||0))).toFixed(1);
+    return `
+    <div style="background:white;border:1px solid var(--gray-border);border-radius:6px;padding:8px;margin-bottom:6px" id="ouv-${f.id}-${i}">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+        <select class="input input-sm ouv-type" data-fid="${f.id}" data-idx="${i}" style="flex:1">
+          ${typeOpts}
+        </select>
+        <button class="btn btn-sm btn-danger" onclick="supprimerOuverture('${f.id}',${i})" style="padding:4px 8px">✕</button>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label class="field-label">Larg. (m)</label>
+          <input type="number" class="input input-sm ouv-dim" data-fid="${f.id}" data-idx="${i}" data-dim="L" value="${o.L||""}" placeholder="L" step="0.01">
+        </div>
+        <div>
+          <label class="field-label">Haut. (m)</label>
+          <input type="number" class="input input-sm ouv-dim" data-fid="${f.id}" data-idx="${i}" data-dim="H" value="${o.H||""}" placeholder="H" step="0.01">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px;font-size:11px;color:#64748b">
+        <span>Surface : <strong style="color:var(--red)">${surf} m²</strong></span>
+        <span>·</span>
+        <span>ML périmètre : <strong style="color:var(--orange)">${ml} ml</strong></span>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function calcSurfOuv(f) {
+  return (f.ouvertures||[]).reduce((a, o) => a + ((o.L||0) * (o.H||0)), 0);
+}
+
+function calcMLOuv(f) {
+  return (f.ouvertures||[]).reduce((a, o) => a + 2 * ((o.L||0) + (o.H||0)), 0);
+}
+
+function bindOuverturesEvents(f) {
+  const el = document.getElementById("facade-" + f.id);
+  if (!el) return;
+
+  el.querySelectorAll(".ouv-type").forEach(sel => {
+    sel.addEventListener("change", e => {
+      const idx = parseInt(e.target.dataset.idx);
+      f.ouvertures[idx].type = e.target.value;
+    });
+  });
+
+  el.querySelectorAll(".ouv-dim").forEach(inp => {
+    inp.addEventListener("input", e => {
+      const idx = parseInt(e.target.dataset.idx);
+      const dim = e.target.dataset.dim;
+      f.ouvertures[idx][dim] = parseFloat(e.target.value) || 0;
+      refreshOuverturesBadges(f);
+    });
+  });
+}
+
+function refreshOuverturesBadges(f) {
+  const surfEl = document.getElementById(`ouv-surf-${f.id}`);
+  const mlEl   = document.getElementById(`ouv-ml-${f.id}`);
+  if (surfEl) surfEl.textContent = calcSurfOuv(f).toFixed(2) + " m²";
+  if (mlEl)   mlEl.textContent   = calcMLOuv(f).toFixed(1) + " ml";
+  // Recalc ouvertures inline labels
+  const container = document.getElementById("ouv-container-" + f.id);
+  if (!container) return;
+  f.ouvertures.forEach((o, i) => {
+    const row = container.querySelector(`#ouv-${f.id}-${i}`);
+    if (!row) return;
+    const spans = row.querySelectorAll("strong");
+    if (spans[0]) spans[0].textContent = ((o.L||0)*(o.H||0)).toFixed(2) + " m²";
+    if (spans[1]) spans[1].textContent = (2*((o.L||0)+(o.H||0))).toFixed(1) + " ml";
+  });
+  recalcTotaux();
+  autoFillQtyFromFacades();
+}
+
+window.ajouterOuverture = (fid) => {
+  const f = facades.find(x => x.id === fid);
+  if (!f) return;
+  f.ouvertures.push({ type: "fenetre", L: 0, H: 0 });
+  renderFacades();
+};
+
+window.supprimerOuverture = (fid, idx) => {
+  const f = facades.find(x => x.id === fid);
+  if (!f) return;
+  f.ouvertures.splice(idx, 1);
+  renderFacades();
+  recalcTotaux();
+  autoFillQtyFromFacades();
+};
 
 window.calcFacade = (f) => {
   const L = f.L, H = f.H;
@@ -289,7 +406,9 @@ window.calcFacade = (f) => {
   }
 
   f.surface = parseFloat(surface.toFixed(2));
-  toast(`✅ ${f.nom} : ${f.surface} m²`);
+  const surfOuv = parseFloat(calcSurfOuv(f).toFixed(2));
+  f.surfaceNette = parseFloat(Math.max(0, f.surface - surfOuv).toFixed(2));
+  toast(`✅ ${f.nom} : ${f.surface} m² brut → ${f.surfaceNette} m² net (−${surfOuv} ouv.)`);
   renderFacades();
   recalcTotaux();
   autoFillQtyFromFacades();
@@ -308,14 +427,16 @@ function handlePhoto(e, f) {
 }
 
 function recalcTotaux() {
-  const totalSurface = facades.reduce((a, f) => a + (f.surface || 0), 0);
-  const totalMLOuv   = facades.reduce((a, f) => a + (parseFloat(f.mlOuv) || 0), 0);
+  const totalSurface = facades.reduce((a, f) => a + (f.surfaceNette || 0), 0);
+  const totalSurfBrut= facades.reduce((a, f) => a + (f.surface || 0), 0);
+  const totalSurfOuv = facades.reduce((a, f) => a + calcSurfOuv(f), 0);
+  const totalMLOuv   = facades.reduce((a, f) => a + calcMLOuv(f), 0);
   const totalMLArr   = facades.reduce((a, f) => a + (parseFloat(f.mlArrets) || 0), 0);
-  const totalFen     = facades.reduce((a, f) => a + (parseInt(f.nbFenetres) || 0), 0);
+  const totalFen     = facades.reduce((a, f) => a + (f.ouvertures||[]).length, 0);
 
-  if (totalSurface > 0 || totalMLOuv > 0) {
+  if (totalSurfBrut > 0 || totalMLOuv > 0) {
     document.getElementById("totalsFacades").style.display = "block";
-    document.getElementById("totalSurfaceFacades").textContent = totalSurface.toFixed(2) + " m²";
+    document.getElementById("totalSurfaceFacades").textContent = totalSurface.toFixed(2) + " m² net (" + totalSurfBrut.toFixed(2) + " brut − " + totalSurfOuv.toFixed(2) + " ouv.)";
     document.getElementById("totalMLOuvertures").textContent  = totalMLOuv.toFixed(1) + " ml";
     document.getElementById("totalMLArrets").textContent      = totalMLArr.toFixed(1) + " ml";
     document.getElementById("totalFenetres").textContent      = totalFen;
@@ -323,10 +444,10 @@ function recalcTotaux() {
 }
 
 function autoFillQtyFromFacades() {
-  const totalSurface = facades.reduce((a, f) => a + (f.surface || 0), 0);
-  const totalMLOuv   = facades.reduce((a, f) => a + (parseFloat(f.mlOuv) || 0), 0);
+  const totalSurface = facades.reduce((a, f) => a + (f.surfaceNette || 0), 0);
+  const totalMLOuv   = facades.reduce((a, f) => a + calcMLOuv(f), 0);
   const totalMLArr   = facades.reduce((a, f) => a + (parseFloat(f.mlArrets) || 0), 0);
-  const totalFen     = facades.reduce((a, f) => a + (parseInt(f.nbFenetres) || 0), 0);
+  const totalFen     = facades.reduce((a, f) => a + (f.ouvertures||[]).length, 0);
 
   document.querySelectorAll(".qty-input").forEach(inp => {
     const p = currentPrices.find(x => x.id === inp.dataset.id);
@@ -342,27 +463,35 @@ function updateRecapMetre() {
   const name = document.getElementById("clientName").value || "—";
   document.getElementById("recapClientChip").textContent = name;
 
-  const totalSurface = facades.reduce((a, f) => a + (f.surface || 0), 0);
-  const totalMLOuv   = facades.reduce((a, f) => a + (parseFloat(f.mlOuv) || 0), 0);
+  const totalSurface = facades.reduce((a, f) => a + (f.surfaceNette || 0), 0);
+  const totalSurfBrut= facades.reduce((a, f) => a + (f.surface || 0), 0);
+  const totalSurfOuv = facades.reduce((a, f) => a + calcSurfOuv(f), 0);
+  const totalMLOuv   = facades.reduce((a, f) => a + calcMLOuv(f), 0);
   const totalMLArr   = facades.reduce((a, f) => a + (parseFloat(f.mlArrets) || 0), 0);
-  const totalFen     = facades.reduce((a, f) => a + (parseInt(f.nbFenetres) || 0), 0);
+  const totalFen     = facades.reduce((a, f) => a + (f.ouvertures||[]).length, 0);
 
-  if (facades.length === 0 || totalSurface === 0) {
+  if (facades.length === 0 || totalSurfBrut === 0) {
     document.getElementById("recapMetreBody").innerHTML = `<div class="empty-state" style="padding:16px"><p>Remplissez d'abord le métré ➜</p></div>`;
     return;
   }
 
-  const facadeLines = facades.map(f =>
-    `<div class="summary-line"><span>${f.nom}</span><span class="val">${f.surface} m²</span></div>`
-  ).join("");
+  const facadeLines = facades.map(f => {
+    const ouvCount = (f.ouvertures||[]).length;
+    return `<div class="summary-line">
+      <span>${f.nom}${ouvCount > 0 ? ` <span style="font-size:10px;opacity:.7">(${ouvCount} ouv.)</span>` : ""}</span>
+      <span class="val">${f.surfaceNette} m² net <span style="opacity:.5;font-size:11px">(${f.surface} brut)</span></span>
+    </div>`;
+  }).join("");
 
   document.getElementById("recapMetreBody").innerHTML = `
     ${facadeLines}
     <div class="sep"></div>
-    <div class="summary-line" style="color:var(--slate)"><span><strong>Surface totale</strong></span><span class="val" style="color:var(--orange)"><strong>${totalSurface.toFixed(2)} m²</strong></span></div>
-    <div class="summary-line"><span>ML baguettes ouvertures</span><span class="val">${totalMLOuv.toFixed(1)} ml</span></div>
+    <div class="summary-line"><span>Surface brute</span><span class="val">${totalSurfBrut.toFixed(2)} m²</span></div>
+    <div class="summary-line"><span style="color:var(--red)">− Ouvertures (${totalFen} ouv.)</span><span class="val" style="color:var(--red)">−${totalSurfOuv.toFixed(2)} m²</span></div>
+    <div class="summary-line" style="color:var(--slate)"><span><strong>= Surface nette ITE</strong></span><span class="val" style="color:var(--orange)"><strong>${totalSurface.toFixed(2)} m²</strong></span></div>
+    <div class="sep"></div>
+    <div class="summary-line"><span>ML baguettes ouvertures (auto)</span><span class="val">${totalMLOuv.toFixed(1)} ml</span></div>
     <div class="summary-line"><span>ML arrêts / jonctions</span><span class="val">${totalMLArr.toFixed(1)} ml</span></div>
-    <div class="summary-line"><span>Nombre de fenêtres</span><span class="val">${totalFen}</span></div>
   `;
 
   // Auto-remplir les qtés
@@ -521,14 +650,67 @@ ISOL-PRESTIGE — Devis établi le ${date}`;
   document.getElementById("summaryCard").scrollIntoView({ behavior: "smooth" });
 };
 
-// ─── WHATSAPP ─────────────────────────────────────────────────────────────────
+// ─── WHATSAPP AU CHOIX ────────────────────────────────────────────────────────
 window.sendWhatsApp = () => {
   if (!lastDevisText) { toast("⚠️ Générez d'abord le devis"); return; }
-  const phone = document.getElementById("clientPhone").value.replace(/\D/g, "");
-  const url = phone
-    ? `https://wa.me/33${phone.slice(1)}?text=${encodeURIComponent(lastDevisText)}`
-    : `https://wa.me/?text=${encodeURIComponent(lastDevisText)}`;
-  window.open(url, "_blank");
+
+  const clientPhone = document.getElementById("clientPhone").value.replace(/\D/g, "");
+  const clientName  = document.getElementById("clientName").value || "client";
+
+  // Afficher modal de choix
+  const modal = document.createElement("div");
+  modal.id = "wa-modal";
+  modal.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9998;display:flex;align-items:flex-end;justify-content:center";
+  modal.innerHTML = `
+    <div style="background:white;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:480px">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:16px;margin-bottom:4px">Envoyer par WhatsApp</div>
+      <div style="font-size:13px;color:#64748b;margin-bottom:18px">Choisissez le destinataire</div>
+
+      ${clientPhone ? `
+      <button onclick="envoyerWA('${clientPhone}')" style="width:100%;background:#25D366;color:white;border:none;border-radius:12px;padding:14px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>
+        ${clientName} — ${formatPhone(clientPhone)}
+      </button>` : ""}
+
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+        <input id="wa-autre-phone" type="tel" placeholder="Autre numéro (06 00 00 00 00)" style="flex:1;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;outline:none;font-family:'DM Sans',sans-serif">
+        <button onclick="envoyerWAAutre()" style="background:#0f172a;color:white;border:none;border-radius:10px;padding:12px 16px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
+          Envoyer
+        </button>
+      </div>
+
+      <button onclick="envoyerWA('')" style="width:100%;background:#f1f5f9;color:#334155;border:none;border-radius:12px;padding:12px;font-family:'Syne',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:10px">
+        Ouvrir WhatsApp sans numéro
+      </button>
+
+      <button onclick="document.getElementById('wa-modal').remove()" style="width:100%;background:transparent;color:#94a3b8;border:none;padding:10px;font-size:14px;cursor:pointer">
+        Annuler
+      </button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener("click", e => { if (e.target === modal) modal.remove(); });
+};
+
+function formatPhone(digits) {
+  return digits.replace(/(\d{2})(?=\d)/g, "$1 ").trim();
+}
+
+window.envoyerWA = (digits) => {
+  document.getElementById("wa-modal")?.remove();
+  const txt = encodeURIComponent(lastDevisText);
+  if (digits && digits.length >= 9) {
+    const intl = digits.startsWith("0") ? "33" + digits.slice(1) : digits;
+    window.open(`https://wa.me/${intl}?text=${txt}`, "_blank");
+  } else {
+    window.open(`https://wa.me/?text=${txt}`, "_blank");
+  }
+};
+
+window.envoyerWAAutre = () => {
+  const val = document.getElementById("wa-autre-phone").value.replace(/\D/g, "");
+  if (!val) { toast("⚠️ Saisissez un numéro"); return; }
+  envoyerWA(val);
 };
 
 // ─── EXPORT PDF (impression navigateur) ──────────────────────────────────────
