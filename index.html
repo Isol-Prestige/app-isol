@@ -2,283 +2,696 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ISOL-PRESTIGE</title>
-<script src="https://cdn.tailwindcss.com"></script>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ISOL-PRESTIGE — Métré & Devis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-.active-tab { border-bottom: 4px solid #f97316; color: #f97316; font-weight: bold; }
-#login-screen { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+:root {
+  --orange: #f97316;
+  --orange-dark: #ea580c;
+  --slate: #0f172a;
+  --slate-mid: #1e293b;
+  --slate-light: #334155;
+  --gray-bg: #f1f5f9;
+  --gray-border: #e2e8f0;
+  --white: #ffffff;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --green: #16a34a;
+  --red: #dc2626;
+  --success-bg: #dcfce7;
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--gray-bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 15px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1,h2,h3,h4 { font-family: 'Syne', sans-serif; }
+
+/* ── LOGIN ── */
+#login-screen {
+  position: fixed; inset: 0;
+  background: linear-gradient(145deg, #0f172a 0%, #1e293b 60%, #0c1a2e 100%);
+  display: flex; align-items: center; justify-content: center; z-index: 1000;
+}
+.login-box {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 40px 32px;
+  width: 340px;
+  backdrop-filter: blur(20px);
+}
+.login-logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px; font-weight: 800;
+  color: var(--white); letter-spacing: 2px;
+  text-align: center; margin-bottom: 6px;
+}
+.login-sub { color: #94a3b8; text-align: center; font-size: 13px; margin-bottom: 28px; }
+.login-input {
+  width: 100%; padding: 13px 16px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px; color: white;
+  font-size: 15px; margin-bottom: 12px;
+  outline: none; font-family: 'DM Sans', sans-serif;
+  transition: border-color .2s;
+}
+.login-input::placeholder { color: #64748b; }
+.login-input:focus { border-color: var(--orange); }
+.btn-login {
+  width: 100%; padding: 14px;
+  background: var(--orange); color: white;
+  border: none; border-radius: 10px;
+  font-family: 'Syne', sans-serif;
+  font-size: 15px; font-weight: 700;
+  cursor: pointer; letter-spacing: 1px;
+  transition: background .2s, transform .1s;
+}
+.btn-login:active { transform: scale(0.98); }
+.btn-login:hover { background: var(--orange-dark); }
+#loginError { color: #f87171; font-size: 13px; margin-top: 10px; text-align: center; display:none; }
+
+/* ── APP ── */
+#app-content { display: none; }
+
+/* Header */
+.app-header {
+  background: var(--slate);
+  padding: 0 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 56px; position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+.header-logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 17px; font-weight: 800;
+  color: white; letter-spacing: 1.5px;
+}
+.header-logo span { color: var(--orange); }
+.btn-logout {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #94a3b8; border-radius: 8px;
+  padding: 7px 14px; font-size: 13px;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: all .2s;
+}
+.btn-logout:hover { background: rgba(255,255,255,0.14); color: white; }
+
+/* Tabs */
+.tab-bar {
+  background: var(--slate-mid);
+  display: flex; position: sticky; top: 56px; z-index: 99;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.tab-btn {
+  flex: 1; padding: 13px 8px;
+  border: none; background: transparent;
+  color: #64748b; font-size: 12px; font-weight: 600;
+  font-family: 'Syne', sans-serif; letter-spacing: .5px;
+  text-transform: uppercase; cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all .2s; display: flex;
+  flex-direction: column; align-items: center; gap: 3px;
+}
+.tab-btn svg { width: 18px; height: 18px; }
+.tab-btn.active { color: var(--orange); border-bottom-color: var(--orange); }
+
+/* Main content */
+main { padding: 16px; max-width: 640px; margin: 0 auto; padding-bottom: 40px; }
+
+/* Cards */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.card-header {
+  padding: 14px 16px 10px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--gray-border);
+}
+.card-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px; font-weight: 700;
+  color: var(--slate); letter-spacing: .3px;
+  display: flex; align-items: center; gap: 8px;
+}
+.card-title-dot {
+  width: 8px; height: 8px;
+  background: var(--orange); border-radius: 50%;
+}
+.card-body { padding: 14px 16px; }
+
+/* Inputs */
+.field-label {
+  font-size: 11px; font-weight: 600;
+  color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: .6px; margin-bottom: 5px; display: block;
+}
+.input {
+  width: 100%; padding: 11px 14px;
+  background: var(--gray-bg);
+  border: 1.5px solid var(--gray-border);
+  border-radius: var(--radius-sm);
+  font-size: 15px; color: var(--text);
+  outline: none; font-family: 'DM Sans', sans-serif;
+  transition: border-color .2s, background .2s;
+}
+.input:focus { border-color: var(--orange); background: white; }
+.input::placeholder { color: #94a3b8; }
+.input-sm { padding: 9px 12px; font-size: 14px; }
+.input-group { margin-bottom: 10px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 12px 20px; border-radius: 10px; border: none;
+  font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; letter-spacing: .4px; transition: all .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active { transform: scale(0.97); }
+.btn-full { width: 100%; }
+.btn-primary { background: var(--orange); color: white; }
+.btn-primary:hover { background: var(--orange-dark); }
+.btn-dark { background: var(--slate); color: white; }
+.btn-dark:hover { background: var(--slate-mid); }
+.btn-green { background: var(--green); color: white; }
+.btn-ghost {
+  background: var(--gray-bg); color: var(--text-muted);
+  border: 1.5px solid var(--gray-border);
+}
+.btn-ghost:hover { border-color: var(--orange); color: var(--orange); }
+.btn-danger { background: #fef2f2; color: var(--red); border: 1px solid #fecaca; }
+.btn-sm { padding: 7px 13px; font-size: 12px; border-radius: 7px; }
+
+/* Facade tabs */
+.facade-tabs {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px;
+}
+.facade-tab {
+  padding: 6px 13px;
+  border-radius: 20px; border: 1.5px solid var(--gray-border);
+  font-size: 12px; font-weight: 600; font-family: 'Syne', sans-serif;
+  cursor: pointer; background: var(--gray-bg); color: var(--text-muted);
+  transition: all .2s;
+}
+.facade-tab.active { background: var(--orange); border-color: var(--orange); color: white; }
+
+/* Facade card */
+.facade-entry {
+  border: 1.5px solid var(--gray-border);
+  border-radius: var(--radius-sm);
+  padding: 12px; margin-bottom: 10px;
+  background: var(--gray-bg);
+}
+.facade-entry-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.facade-name-badge {
+  font-family: 'Syne', sans-serif; font-weight: 700;
+  font-size: 13px; color: var(--slate);
+  background: white; border: 1.5px solid var(--gray-border);
+  padding: 4px 11px; border-radius: 20px;
+}
+.surface-badge {
+  font-family: 'Syne', sans-serif; font-weight: 700;
+  font-size: 13px; color: white;
+  background: var(--orange); padding: 4px 11px; border-radius: 20px;
+}
+
+/* Photo upload */
+.photo-zone {
+  border: 2px dashed var(--gray-border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  text-align: center; cursor: pointer;
+  background: var(--gray-bg); transition: all .2s;
+  margin-top: 10px;
+}
+.photo-zone:hover { border-color: var(--orange); background: #fff7ed; }
+.photo-zone img { width: 100%; max-height: 140px; object-fit: cover; border-radius: 6px; margin-top: 6px; }
+.photo-label { font-size: 12px; color: var(--text-muted); }
+
+/* ML section */
+.ml-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+}
+.ml-label { font-size: 12px; font-weight: 600; color: var(--text-muted); width: 110px; flex-shrink: 0; }
+.ml-badge {
+  font-size: 11px; font-weight: 700;
+  background: var(--slate); color: white;
+  padding: 2px 8px; border-radius: 12px;
+}
+
+/* Prestations */
+.prestation-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 0; border-bottom: 1px solid var(--gray-border);
+}
+.prestation-row:last-child { border-bottom: none; }
+.prestation-info { flex: 1; }
+.prestation-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.prestation-price { font-size: 12px; color: var(--text-muted); }
+.prestation-qty {
+  display: flex; align-items: center; gap: 6px;
+}
+.qty-input {
+  width: 72px; padding: 8px; text-align: center;
+  border: 1.5px solid var(--gray-border);
+  border-radius: 8px; font-size: 14px; font-weight: 600;
+  background: var(--gray-bg); outline: none;
+  font-family: 'DM Sans', sans-serif; color: var(--text);
+  transition: border-color .2s;
+}
+.qty-input:focus { border-color: var(--orange); background: white; }
+.qty-unit { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+
+/* Summary */
+.summary-card {
+  background: var(--slate);
+  border-radius: var(--radius);
+  padding: 20px; margin-bottom: 14px;
+  display: none;
+}
+.summary-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px; font-weight: 800; color: white;
+  margin-bottom: 14px; letter-spacing: 1px;
+}
+.summary-line {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.07);
+  color: #cbd5e1; font-size: 13px;
+}
+.summary-line:last-child { border-bottom: none; }
+.summary-line .val { color: white; font-weight: 600; }
+.summary-total {
+  margin-top: 12px; padding-top: 12px;
+  border-top: 2px solid var(--orange);
+  display: flex; justify-content: space-between;
+  font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800;
+  color: white;
+}
+.summary-total .val { color: var(--orange); }
+
+/* History */
+.history-card {
+  background: white; border-radius: var(--radius-sm);
+  padding: 14px 16px; margin-bottom: 10px;
+  box-shadow: var(--card-shadow);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.history-client { font-weight: 600; font-size: 15px; }
+.history-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.history-total { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; color: var(--orange); }
+
+/* Tarifs */
+.tarif-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px; border-bottom: 1px solid var(--gray-border);
+}
+.tarif-row:last-child { border-bottom: none; }
+.tarif-info { flex: 1; }
+.tarif-name { font-weight: 600; font-size: 14px; }
+.tarif-price-badge {
+  font-size: 12px; font-weight: 700;
+  background: #fff7ed; color: var(--orange);
+  border: 1px solid #fed7aa; border-radius: 12px;
+  padding: 2px 9px;
+}
+
+/* Section totaux façades */
+.facade-totals {
+  background: linear-gradient(135deg, #fff7ed, #ffedd5);
+  border: 1.5px solid #fed7aa;
+  border-radius: var(--radius-sm);
+  padding: 12px 14px; margin-top: 10px;
+}
+.facade-total-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px; font-weight: 700;
+  color: var(--orange); text-transform: uppercase;
+  letter-spacing: .5px; margin-bottom: 8px;
+}
+.facade-total-line {
+  display: flex; justify-content: space-between;
+  font-size: 13px; color: var(--slate-light); padding: 2px 0;
+}
+.facade-total-line strong { color: var(--slate); font-weight: 700; }
+
+/* Select */
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+/* Textarea */
+textarea.input { resize: none; line-height: 1.5; }
+
+/* Empty state */
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+.empty-state svg { width: 48px; height: 48px; margin: 0 auto 12px; opacity: .4; }
+.empty-state p { font-size: 14px; }
+
+/* Toast */
+#toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--slate); color: white;
+  padding: 12px 22px; border-radius: 30px;
+  font-size: 14px; font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+  z-index: 9999; pointer-events: none; white-space: nowrap;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* Section hidden */
+.section { display: none; }
+.section.active { display: block; }
+
+/* Separator */
+.sep { height: 1px; background: var(--gray-border); margin: 12px 0; }
+
+/* Chip */
+.chip {
+  display: inline-block;
+  padding: 3px 10px; border-radius: 12px;
+  font-size: 11px; font-weight: 700;
+  background: var(--gray-bg); color: var(--text-muted);
+  border: 1px solid var(--gray-border);
+}
+.chip-orange { background: #fff7ed; color: var(--orange); border-color: #fed7aa; }
+
+/* Accordion façade */
+.accordion-toggle { cursor: pointer; user-select: none; }
+.accordion-body { overflow: hidden; transition: max-height .3s ease; }
+.accordion-body.collapsed { max-height: 0; }
+
+@media (max-width: 380px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr; }
+  main { padding: 12px; }
+}
 </style>
 </head>
+<body>
 
-<body class="bg-gray-100 min-h-screen">
-
-<!-- LOGIN -->
-<div id="login-screen" class="fixed inset-0 flex items-center justify-center">
-<div class="bg-white p-6 rounded-xl w-80">
-<input id="loginEmail" placeholder="Email" class="w-full p-3 mb-2 bg-gray-100 rounded">
-<input id="loginPass" type="password" placeholder="Password" class="w-full p-3 mb-4 bg-gray-100 rounded">
-<button onclick="handleLogin()" class="w-full bg-orange-600 text-white p-3 rounded">Login</button>
-<p id="loginError" class="text-red-500 hidden text-sm mt-2">Erreur</p>
-</div>
-</div>
-
-<div id="app-content" class="hidden">
-
-<header class="bg-slate-900 text-white p-4 flex justify-between">
-<h1>ISOL-PRESTIGE</h1>
-<button onclick="handleLogout()">Logout</button>
-</header>
-
-<div class="flex">
-<button onclick="showSection('devis')" id="tab-devis" class="flex-1 p-2 active-tab">Devis</button>
-<button onclick="showSection('clients')" id="tab-clients" class="flex-1 p-2">Clients</button>
-<button onclick="showSection('reglages')" id="tab-reglages" class="flex-1 p-2">Tarifs</button>
+<!-- ══ LOGIN ══ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">ISOL<span style="color:var(--orange)">·</span>PRESTIGE</div>
+    <div class="login-sub">Espace professionnel</div>
+    <input id="loginEmail" type="email" class="login-input" placeholder="Email">
+    <input id="loginPass" type="password" class="login-input" placeholder="Mot de passe">
+    <button class="btn-login" onclick="handleLogin()">Connexion</button>
+    <div id="loginError"></div>
+  </div>
 </div>
 
-<main class="p-4 max-w-xl mx-auto">
+<!-- ══ APP ══ -->
+<div id="app-content">
 
-<!-- DEVIS -->
-<section id="section-devis">
+  <header class="app-header">
+    <div class="header-logo">ISOL<span>·</span>PRESTIGE</div>
+    <button class="btn-logout" onclick="handleLogout()">Déconnexion</button>
+  </header>
 
-<div class="bg-white p-4 mb-4 rounded">
-<input id="clientName" placeholder="Nom client" class="w-full p-3 mb-2 bg-gray-100 rounded">
-<input id="clientAddress" placeholder="Adresse" class="w-full p-3 bg-gray-100 rounded">
+  <nav class="tab-bar">
+    <button class="tab-btn active" id="tab-metre" onclick="showSection('metre')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+      Métré
+    </button>
+    <button class="tab-btn" id="tab-devis" onclick="showSection('devis')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      Devis
+    </button>
+    <button class="tab-btn" id="tab-clients" onclick="showSection('clients')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Clients
+    </button>
+    <button class="tab-btn" id="tab-tarifs" onclick="showSection('tarifs')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      Tarifs
+    </button>
+  </nav>
+
+  <main>
+
+    <!-- ══ SECTION MÉTRÉ ══ -->
+    <section id="section-metre" class="section active">
+
+      <!-- Infos client -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="card-title-dot"></div>Informations client</div>
+        </div>
+        <div class="card-body">
+          <div class="input-group">
+            <label class="field-label">Nom / Société</label>
+            <input id="clientName" class="input" placeholder="M. Dupont ou Société SAS">
+          </div>
+          <div class="input-group">
+            <label class="field-label">Adresse du chantier</label>
+            <input id="clientAddress" class="input" placeholder="15 rue des Fleurs, 68000 Colmar">
+          </div>
+          <div class="grid-2">
+            <div class="input-group">
+              <label class="field-label">Téléphone</label>
+              <input id="clientPhone" class="input" type="tel" placeholder="06 00 00 00 00">
+            </div>
+            <div class="input-group">
+              <label class="field-label">Date visite</label>
+              <input id="visitDate" class="input" type="date">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Façades -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="card-title-dot"></div>Façades</div>
+          <button class="btn btn-sm btn-primary" onclick="ajouterFacade()">+ Ajouter</button>
+        </div>
+        <div class="card-body" id="facadesContainer">
+          <!-- Façades injectées ici -->
+        </div>
+
+        <!-- Totaux -->
+        <div class="card-body" style="padding-top:0">
+          <div class="facade-totals" id="totalsFacades" style="display:none">
+            <div class="facade-total-title">📐 Récapitulatif global</div>
+            <div class="facade-total-line"><span>Surface totale façades</span><strong id="totalSurfaceFacades">0 m²</strong></div>
+            <div class="facade-total-line"><span>ML ouvertures (baguettes)</span><strong id="totalMLOuvertures">0 ml</strong></div>
+            <div class="facade-total-line"><span>ML arrêts / jonctions</span><strong id="totalMLArrets">0 ml</strong></div>
+            <div class="facade-total-line"><span>Nb fenêtres</span><strong id="totalFenetres">0</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes chantier -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="card-title-dot"></div>Notes chantier</div>
+        </div>
+        <div class="card-body">
+          <textarea id="chanterNotes" class="input" rows="3" placeholder="Observations, contraintes d'accès, nacelle nécessaire…"></textarea>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-full" onclick="showSection('devis')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Passer au chiffrage
+      </button>
+
+    </section>
+
+    <!-- ══ SECTION DEVIS / CHIFFRAGE ══ -->
+    <section id="section-devis" class="section">
+
+      <!-- Récap métré -->
+      <div class="card" id="recapMetreCard">
+        <div class="card-header">
+          <div class="card-title"><div class="card-title-dot"></div>Données métré</div>
+          <span class="chip chip-orange" id="recapClientChip">—</span>
+        </div>
+        <div class="card-body" id="recapMetreBody">
+          <div class="empty-state" style="padding:16px">
+            <p>Remplissez d'abord le métré ➜</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Prestations -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="card-title-dot"></div>Prestations à chiffrer</div>
+        </div>
+        <div class="card-body" id="itemsContainer">
+          <div class="empty-state">
+            <p>Ajoutez des prestations dans l'onglet Tarifs</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Remise -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="card-title-dot"></div>Options devis</div>
+        </div>
+        <div class="card-body">
+          <div class="grid-2">
+            <div class="input-group">
+              <label class="field-label">Remise (%)</label>
+              <input id="devisRemise" type="number" class="input" placeholder="0" min="0" max="100">
+            </div>
+            <div class="input-group">
+              <label class="field-label">TVA (%)</label>
+              <select id="devisTVA" class="input">
+                <option value="5.5">5.5% (réno.)</option>
+                <option value="10">10%</option>
+                <option value="20">20%</option>
+                <option value="0">0% (HT seul)</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="field-label">Commentaire devis</label>
+            <textarea id="devisComment" class="input" rows="2" placeholder="Délai, conditions, remarques…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-full" onclick="genererDevis()" style="margin-bottom:14px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Générer le devis
+      </button>
+
+      <!-- Résultat -->
+      <div class="summary-card" id="summaryCard">
+        <div class="summary-title">ISOL·PRESTIGE — ESTIMATION</div>
+        <div id="summaryLines"></div>
+        <div class="summary-total">
+          <span>TOTAL TTC</span>
+          <span class="val" id="summaryTotalTTC">—</span>
+        </div>
+        <div style="margin-top:8px;display:flex;justify-content:space-between;color:#94a3b8;font-size:12px">
+          <span>HT : <strong style="color:white" id="summaryHT">—</strong></span>
+          <span>TVA <span id="summaryTVApct">—</span>% : <strong style="color:white" id="summaryTVA">—</strong></span>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:16px">
+          <button class="btn btn-green" style="flex:1" onclick="sendWhatsApp()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.554 4.121 1.523 5.855L.057 23.543a.5.5 0 0 0 .61.61l5.688-1.466A11.938 11.938 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.892 0-3.659-.52-5.168-1.425l-.368-.222-3.817.984.998-3.718-.242-.382A9.944 9.944 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+            WhatsApp
+          </button>
+          <button class="btn btn-dark" style="flex:1" onclick="exportPDF()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            PDF
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ══ SECTION CLIENTS ══ -->
+    <section id="section-clients" class="section">
+      <div id="historyList">
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          <p>Aucun client enregistré</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION TARIFS ══ -->
+    <section id="section-tarifs" class="section">
+
+      <!-- Formulaire ajout prestation -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="card-title-dot"></div>Nouvelle prestation</div>
+        </div>
+        <div class="card-body">
+          <div class="input-group">
+            <label class="field-label">Nom de la prestation</label>
+            <input id="itemLabel" class="input" placeholder="Ex: Isolation ITE PSE graphite 14cm">
+          </div>
+          <div class="grid-2">
+            <div class="input-group">
+              <label class="field-label">Prix unitaire (€)</label>
+              <input id="itemPrice" type="number" class="input" placeholder="0.00" step="0.01">
+            </div>
+            <div class="input-group">
+              <label class="field-label">Unité</label>
+              <select id="itemUnit" class="input">
+                <option value="m²">m² (surface)</option>
+                <option value="ml">ml (linéaire)</option>
+                <option value="U">U (unité)</option>
+                <option value="forfait">Forfait</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="field-label">Catégorie</label>
+            <select id="itemCategory" class="input">
+              <option value="isolation">Isolation ITE</option>
+              <option value="ravalement">Ravalement / Crépi</option>
+              <option value="peinture">Peinture</option>
+              <option value="accessoires">Accessoires / Baguettes</option>
+              <option value="main-oeuvre">Main d'œuvre</option>
+              <option value="autre">Autre</option>
+            </select>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="saveItem()">
+            + Ajouter la prestation
+          </button>
+        </div>
+      </div>
+
+      <!-- Liste prestations -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="card-title-dot"></div>Catalogue prestations</div>
+        </div>
+        <div id="itemsTable">
+          <div class="empty-state" style="padding:24px">
+            <p>Aucune prestation configurée</p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
 </div>
 
-<!-- MODULE FACADE -->
-<div class="bg-white p-4 mb-4 rounded">
-<h2 class="font-bold mb-2">Calcul façade</h2>
+<div id="toast"></div>
 
-<select id="facadeType" class="w-full p-2 mb-2 bg-gray-100 rounded">
-<option value="rectangle">Façade simple</option>
-<option value="pignon">Façade pignon</option>
-</select>
-
-<div class="grid grid-cols-2 gap-2">
-<input id="facadeL" type="number" placeholder="Largeur" class="p-2 bg-gray-100 rounded">
-<input id="facadeH" type="number" placeholder="Hauteur" class="p-2 bg-gray-100 rounded">
-</div>
-
-<input id="facadeHp" type="number" placeholder="Hauteur pignon" class="p-2 bg-gray-100 rounded mt-2 hidden">
-
-<button onclick="calculerSurface()" class="w-full mt-2 bg-slate-800 text-white p-2 rounded">Calculer</button>
-<p id="surfaceResult" class="mt-2 text-orange-600 font-bold"></p>
-</div>
-
-<!-- PRESTATIONS -->
-<div class="bg-white p-4 rounded">
-<div id="itemsContainer"></div>
-<button onclick="genererDevisPro()" class="w-full mt-4 bg-orange-600 text-white p-3 rounded">
-Générer devis
-</button>
-</div>
-
-<div id="resultat" class="hidden bg-slate-900 text-white p-4 mt-4 rounded">
-<pre id="summaryText"></pre>
-<button onclick="sendWhatsApp()" class="w-full bg-green-600 mt-3 p-3 rounded">
-Envoyer WhatsApp
-</button>
-</div>
-
-</section>
-
-<!-- CLIENTS -->
-<section id="section-clients" class="hidden">
-<div id="historyList"></div>
-</section>
-
-<!-- TARIFS -->
-<section id="section-reglages" class="hidden">
-
-<div class="bg-white p-4 mb-4 rounded">
-<input id="itemLabel" placeholder="Nom" class="w-full p-2 mb-2 border">
-<input id="itemPrice" placeholder="Prix" type="number" class="w-full p-2 mb-2 border">
-<select id="itemUnit" class="w-full p-2 border">
-<option value="m²">m²</option>
-<option value="ml">ml</option>
-<option value="U">U</option>
-</select>
-<button onclick="saveItem()" class="w-full mt-2 bg-black text-white p-2 rounded">Ajouter</button>
-</div>
-
-<div id="itemsTable"></div>
-
-</section>
-
-</main>
-</div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-    // Tes vraies clés de configuration
-    const firebaseConfig = {
-        apiKey: "AIzaSyBeSwiReLvYaV47FSQKLTGEo0ynA8gM1f8",
-        authDomain: "app-isol.firebaseapp.com",
-        projectId: "app-isol",
-        storageBucket: "app-isol.firebasestorage.app",
-        messagingSenderId: "49748280512",
-        appId: "1:49748280512:web:76e89909bf358434689925",
-        measurementId: "G-Y8LNJQ713T"
-    };
-
-    // Initialisation
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    
-window.showSection = (id) => {
-    ['devis', 'clients', 'reglages'].forEach(s => {
-        document.getElementById('section-'+s).classList.add('hidden');
-        document.getElementById('tab-'+s).classList.remove('active-tab');
-    });
-    document.getElementById('section-'+id).classList.remove('hidden');
-    document.getElementById('tab-'+id).classList.add('active-tab');
-};
-let currentPrices=[];
-let lastSurface=0;
-
-window.handleLogin = () => {
-    const email = document.getElementById("loginEmail").value;
-    const pass = document.getElementById("loginPass").value;
-
-    signInWithEmailAndPassword(auth, email, pass)
-        .then(() => {
-            console.log("Connexion OK");
-        })
-        .catch((error) => {
-            console.error("ERREUR FIREBASE :", error);
-            document.getElementById("loginError").innerText = error.message;
-            document.getElementById("loginError").classList.remove("hidden");
-        });
-};
-    
-window.handleLogout = () => { 
-    signOut(auth).then(() => location.reload()); 
-};
-    
-onAuthStateChanged(auth,user=>{
-if(user){
-document.getElementById("login-screen").style.display="none";
-document.getElementById("app-content").classList.remove("hidden");
-init();
-}
-});
-
-function init(){
-
-onSnapshot(collection(db,"prestations"),snap=>{
-itemsContainer.innerHTML="";
-itemsTable.innerHTML="";
-currentPrices=[];
-
-snap.forEach(d=>{
-let item=d.data();
-currentPrices.push({id:d.id,...item});
-
-itemsContainer.innerHTML+=`
-<div class="flex justify-between border-b p-2">
-<span>${item.nom}</span>
-<input type="number" data-id="${d.id}" class="qty-input w-16 border text-center">
-</div>`;
-
-itemsTable.innerHTML+=`
-<div class="flex justify-between border-b p-2">
-<span>${item.nom} (${item.prix}€/${item.unite})</span>
-<button onclick="deleteItem('${d.id}')" class="text-red-500">X</button>
-</div>`;
-});
-});
-
-onSnapshot(query(collection(db,"archives_devis"),orderBy("date","desc")),snap=>{
-historyList.innerHTML="";
-snap.forEach(d=>{
-let data=d.data();
-historyList.innerHTML+=`
-<div class="bg-white p-3 mb-2 flex justify-between">
-<div>${data.client} - ${data.total}€</div>
-<button onclick="deleteDevis('${d.id}')">X</button>
-</div>`;
-});
-});
-
-}
-
-window.saveItem=async()=>{
-await addDoc(collection(db,"prestations"),{
-nom:itemLabel.value,
-prix:parseFloat(itemPrice.value),
-unite:itemUnit.value
-});
-};
-
-window.deleteItem=id=>deleteDoc(doc(db,"prestations",id));
-window.deleteDevis=id=>deleteDoc(doc(db,"archives_devis",id));
-
-window.calculerSurface=()=>{
-let L=+facadeL.value||0;
-let H=+facadeH.value||0;
-let Hp=+facadeHp.value||0;
-
-let surface = facadeType.value==="pignon"
-? (L*H)+(L*Hp/2)
-: L*H;
-
-lastSurface=surface.toFixed(2);
-surfaceResult.innerText="Surface : "+lastSurface+" m²";
-
-document.querySelectorAll(".qty-input").forEach(i=>{
-let p=currentPrices.find(x=>x.id===i.dataset.id);
-if(p.unite==="m²") i.value=lastSurface;
-});
-};
-
-facadeType.addEventListener("change",()=>{
-facadeHp.classList.toggle("hidden",facadeType.value!=="pignon");
-});
-
-window.genererDevisPro=async()=>{
-let total=0,detail="";
-
-document.querySelectorAll(".qty-input").forEach(i=>{
-let q=+i.value||0;
-if(q>0){
-let p=currentPrices.find(x=>x.id===i.dataset.id);
-let st=q*p.prix;
-total+=st;
-detail+=`${p.nom} ${q} x ${p.prix}€ = ${st}€\n`;
-}
-});
-
-let txt=`ISOL-PRESTIGE
-Client : ${clientName.value}
-
-Surface : ${lastSurface} m²
-
-${detail}
-
-TOTAL : ${total}€ HT`;
-
-summaryText.innerText=txt;
-resultat.classList.remove("hidden");
-
-window.lastEstimation=txt;
-
-await addDoc(collection(db,"archives_devis"),{
-client:clientName.value,
-total,
-surface:lastSurface,
-date:Date.now()
-});
-};
-
-window.sendWhatsApp=()=>window.open("https://wa.me/?text="+encodeURIComponent(lastEstimation));
-
-</script>
+<!-- Scripts Firebase + App -->
+<script type="module" src="app.js"></script>
 
 </body>
 </html>
