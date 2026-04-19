@@ -88,10 +88,11 @@ function toast(msg) {
 
 // ─── FAÇADES ─────────────────────────────────────────────────────────────────
 const FACADE_TYPES = [
-  { val: "rectangle", label: "Rectangle", desc: "L × H" },
-  { val: "pignon_1",  label: "Pignon 1 pente", desc: "L×H + triangle" },
-  { val: "pignon_2",  label: "Pignon 2 pentes", desc: "L×H + 2 triangles" },
-  { val: "trapeze",   label: "Trapèze", desc: "(B1+B2)/2 × H" },
+  { val: "rectangle",  label: "Rectangle",           desc: "L × H" },
+  { val: "pignon_1",   label: "Pignon 1 pente",       desc: "L×H + ½ triangle" },
+  { val: "pignon_2",   label: "Pignon 2 pentes",      desc: "L×H + triangle (1 Hp)" },
+  { val: "pignon_asy", label: "Pignon asymétrique",   desc: "L×H + 2 triangles inégaux" },
+  { val: "trapeze",    label: "Trapèze",               desc: "(B1+B2)÷2 × H" },
 ];
 
 window.ajouterFacade = () => {
@@ -162,21 +163,27 @@ function buildFacadeHTML(f) {
 
   // Champs supplémentaires selon type
   let extraFields = "";
-  if (f.type === "pignon_1") {
+  if (f.type === "pignon_1" || f.type === "pignon_2") {
+    // Pignon 1 pente : triangle d'un côté
+    // Pignon 2 pentes symétrique : même formule, triangle centré → 1 seul Hp
     extraFields = `
       <div class="input-group">
         <label class="field-label">Hauteur pignon (m)</label>
-        <input data-key="Hp" type="number" class="input input-sm" value="${f.Hp||""}" placeholder="Hp" step="0.01">
+        <input data-key="Hp" type="number" class="input input-sm" value="${f.Hp||""}" placeholder="Hp — du mur au faîtage" step="0.01">
       </div>`;
-  } else if (f.type === "pignon_2") {
+  } else if (f.type === "pignon_asy") {
+    // Pignon asymétrique : 2 triangles de hauteurs différentes
     extraFields = `
+      <div style="background:#fff7ed;border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:11px;color:#92400e">
+        ⚠ 2 pentes inégales — saisir chaque hauteur séparément
+      </div>
       <div class="grid-2">
         <div class="input-group">
-          <label class="field-label">Haut. pignon 1 (m)</label>
+          <label class="field-label">Hp pente gauche (m)</label>
           <input data-key="Hp" type="number" class="input input-sm" value="${f.Hp||""}" placeholder="Hp1" step="0.01">
         </div>
         <div class="input-group">
-          <label class="field-label">Haut. pignon 2 (m)</label>
+          <label class="field-label">Hp pente droite (m)</label>
           <input data-key="Hp2" type="number" class="input input-sm" value="${f.Hp2||""}" placeholder="Hp2" step="0.01">
         </div>
       </div>`;
@@ -184,7 +191,7 @@ function buildFacadeHTML(f) {
     extraFields = `
       <div class="input-group">
         <label class="field-label">Base haute (m)</label>
-        <input data-key="B2" type="number" class="input input-sm" value="${f.B2||""}" placeholder="Base haute" step="0.01">
+        <input data-key="B2" type="number" class="input input-sm" value="${f.B2||""}" placeholder="Longueur base haute" step="0.01">
       </div>`;
   }
 
@@ -276,7 +283,8 @@ window.calcFacade = (f) => {
   switch (f.type) {
     case "rectangle":  surface = L * H; break;
     case "pignon_1":   surface = (L * H) + (L * f.Hp / 2); break;
-    case "pignon_2":   surface = (L * H) + (L * f.Hp / 2) + (L * f.Hp2 / 2); break;
+    case "pignon_2":   surface = (L * H) + (L * f.Hp / 2); break;        // triangle centré symétrique = même formule
+    case "pignon_asy": surface = (L * H) + (L * f.Hp / 2) + (L * f.Hp2 / 2); break; // 2 triangles inégaux
     case "trapeze":    surface = ((L + f.B2) / 2) * H; break;
   }
 
